@@ -6,6 +6,7 @@ import List from './List.js';
 import SelectTag from './SelectTag.js';
 import DepositAmountTextbox from './DepositAmountTextbox.js';
 import Graph from './Graph.js';
+import CurrentAPYDisplay from './CurrentAPYDisplay.js';
 
 const data = [
   {
@@ -40,6 +41,7 @@ function App() {
       <Header />
       <SelectTag onChange={setAsset} value={asset} />
       <DepositAmountTextbox onChange={setDeposit} value={deposit}/>
+      <CurrentAPYDisplay asset={asset}/>
       <div class='graph'>
         <Graph data={data}/>
       </div>

@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { calculateAverageRate } from "@aave/protocol-js";
+import { parseType } from 'graphql';
 
 export const SAMPLE_DAI =
     {
@@ -629,4 +630,8 @@ export function getAverageRate(result) {
 function getDecimal(number, precision) {
     let result = BigNumber(number) / BigNumber(10) ** BigNumber(precision);
     return result
+}
+
+export function formatAsPercent(decimal) {
+    return parseFloat(decimal*100).toFixed(2) + "%"
 }
