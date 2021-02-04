@@ -594,18 +594,21 @@ export const SAMPLE_DATA = {
 };
 
 export function getInstantPoolDepositAPY(reserve) {
+    let decimals = reserve.decimals;
     console.log(reserve.symbol);
+    console.log('# decimals:', reserve.decimals);
     console.log('utilizationRate: ', reserve.utilizationRate);
     console.log('averageStableRate: ', getDecimal(reserve.averageStableRate, 27));
-    console.log('totalPrincipalStableDebt: ', getDecimal(reserve.totalPrincipalStableDebt, 18));
+    console.log('totalPrincipalStableDebt: ', getDecimal(reserve.totalPrincipalStableDebt, decimals));
     console.log('variableBorrowRate: ', getDecimal(reserve.variableBorrowRate, 27));
-    console.log('totalCurrentVariableDebt: ', getDecimal(reserve.totalCurrentVariableDebt, 18));
+    console.log('totalCurrentVariableDebt: ', getDecimal(reserve.totalCurrentVariableDebt, decimals));
     console.log('reserveFactor: ', getDecimal(reserve.reserveFactor, 4));
-    //query from graph instead
-    let totalDebt = getDecimal(reserve.totalCurrentVariableDebt, 18) + getDecimal(reserve.totalPrincipalStableDebt, 18) 
-    let shareStableBorrows = getDecimal(reserve.totalPrincipalStableDebt, 18) / totalDebt
+
+    
+    let totalDebt = getDecimal(reserve.totalCurrentVariableDebt, decimals) + getDecimal(reserve.totalPrincipalStableDebt, decimals) 
+    let shareStableBorrows = getDecimal(reserve.totalPrincipalStableDebt, decimals) / totalDebt
     console.log('V2shareStableBorrows: ', shareStableBorrows)
-    let shareVariableBorrows = getDecimal(reserve.totalCurrentVariableDebt, 18) /totalDebt
+    let shareVariableBorrows = getDecimal(reserve.totalCurrentVariableDebt, decimals) /totalDebt
     console.log('V2shareVariableBorrows: ', shareVariableBorrows) 
 
     let apy = BigNumber(reserve.utilizationRate) *
