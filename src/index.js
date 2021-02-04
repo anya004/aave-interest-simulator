@@ -13,7 +13,8 @@ import {
 
 // 2
 const httpLink = createHttpLink({
-  uri: 'https://api.thegraph.com/subgraphs/name/aave/protocol'
+  //uri: 'https://api.thegraph.com/subgraphs/name/aave/protocol'
+  uri: 'https://api.thegraph.com/subgraphs/name/aave/protocol-v2'
 });
 
 // 3
