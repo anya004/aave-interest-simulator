@@ -34,25 +34,25 @@ const GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY = gql`
 
 const data_graph = [
     {
-      day: 'Page A', Principle: 4000, Interest: 2400,
+      day: 1612021415, Principle: 1000, Interest: 2400,
     },
     {
-      day: 'Page B', Principle: 3000, Interest: 1398,
+      day: 1612107815, Principle: 1000, Interest: 1398,
     },
     {
-      day: 'Page C', Principle: 2000, Interest: 9800,
+      day: 1612194215, Principle: 1000, Interest: 9800,
     },
     {
-      day: 'Page D', Principle: 2780, Interest: 3908,
+      day: 1612280615, Principle: 1000, Interest: 3908,
     },
     {
-      day: 'Page E', Principle: 1890, Interest: 4800,
+      day: 1612367015, Principle: 1000, Interest: 4800,
     },
     {
-      day: 'Page F', Principle: 2390, Interest: 3800,
+      day: 1612453415, Principle: 1000, Interest: 3800,
     },
     {
-      day: 'Page G', Principle: 3490, Interest: 4300,
+      day: 1612543415, Principle: 1000, Interest: 4300,
     },
 ];
 
@@ -130,7 +130,12 @@ const Graph = ({asset}) => {
                 }}
             >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis label={{ value: 'Day', position: "insideBottom", offset: -10 }} dataKey="day" />
+                <XAxis 
+                    label={{ value: 'Day', position: "insideBottom", offset: -10 }}
+                    scale="time"
+                    dataKey="day"
+                    tickFormatter = {(unixTime) => new Date(unixTime*1000).getDate()}
+                    />
                 <YAxis />
                 <Tooltip />
                 <Area type="monotone" dataKey="Principle" stackId="1" stroke="#8884d8" fill="#B6509E" />
