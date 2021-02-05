@@ -4,7 +4,7 @@ function DepositAmountTextbox({ onChange, value }) {
 
     function handleChange(e) {
         console.log("Deposit Amount Entered!");
-        onChange?.(e.target.value);
+        onChange?.(parseInt(e.target.value));
     }
     
     return (

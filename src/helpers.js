@@ -1,5 +1,7 @@
-import BigNumber from 'bignumber.js';
 import { calculateAverageRate } from "@aave/protocol-js";
+import BigNumber from 'bignumber.js';
+import { invariant } from 'ts-invariant';
+import { uniqBy } from 'lodash';
 import { parseType } from 'graphql';
 
 export const SAMPLE_DAI =
@@ -415,81 +417,6 @@ export const SAMPLE_DATA = {
             "variableRateSlope2": "600000000000000000000000000"
         },
         {
-            "availableLiquidity": "239399771303215165117712",
-            "averageStableRate": "0",
-            "lifetimeCurrentVariableDebt": "559879643780104969649235",
-            "lifetimeDepositorsInterestEarned": "601157843958193275197",
-            "lifetimeFlashLoanPremium": "9344551496155797092",
-            "lifetimePrincipalStableDebt": "0",
-            "lifetimeReserveFactorAccrued": "323918726058375034611",
-            "lifetimeScaledVariableDebt": "552122155514435032523147",
-            "name": "Synthetix Network Token",
-            "reserveFactor": "3500",
-            "stableBorrowRate": "0",
-            "stableRateSlope1": "0",
-            "stableRateSlope2": "0",
-            "symbol": "SNX",
-            "totalCurrentVariableDebt": "134725289696361146167901",
-            "totalLiquidity": "373191223974654169631469",
-            "totalLiquidityAsCollateral": "85122776592405126454525",
-            "totalPrincipalStableDebt": "0",
-            "totalScaledVariableDebt": "132853748522890251423350",
-            "utilizationRate": "0.35850642",
-            "variableBorrowRate": "84016749099137407930737934",
-            "variableRateSlope1": "120000000000000000000000000",
-            "variableRateSlope2": "1000000000000000000000000000"
-        },
-        {
-            "availableLiquidity": "109710186305108558781435",
-            "averageStableRate": "59432577847250848028398185",
-            "lifetimeCurrentVariableDebt": "102712287512474408213738",
-            "lifetimeDepositorsInterestEarned": "40408207000889290436",
-            "lifetimeFlashLoanPremium": "4854261524842531781",
-            "lifetimePrincipalStableDebt": "3587074800278554729949",
-            "lifetimeReserveFactorAccrued": "4489613227185728999",
-            "lifetimeScaledVariableDebt": "102474542083843043973239",
-            "name": "WEthereum",
-            "reserveFactor": "1000",
-            "stableBorrowRate": "66320373421549124707146487",
-            "stableRateSlope1": "100000000000000000000000000",
-            "stableRateSlope2": "1000000000000000000000000000",
-            "symbol": "WETH",
-            "totalCurrentVariableDebt": "33421785759392870828021",
-            "totalLiquidity": "143542724641189075152061",
-            "totalLiquidityAsCollateral": "475472753568943427152801",
-            "totalPrincipalStableDebt": "457624196713652574942",
-            "totalScaledVariableDebt": "33344425231520025462047",
-            "utilizationRate": "0.23569664",
-            "variableBorrowRate": "29056298737239299765717189",
-            "variableRateSlope1": "80000000000000000000000000",
-            "variableRateSlope2": "1000000000000000000000000000"
-        },
-        {
-            "availableLiquidity": "6739947037539669362729404",
-            "averageStableRate": "0",
-            "lifetimeCurrentVariableDebt": "29269505453276773512646094",
-            "lifetimeDepositorsInterestEarned": "369315111718970699131314",
-            "lifetimeFlashLoanPremium": "212091612893232251940",
-            "lifetimePrincipalStableDebt": "0",
-            "lifetimeReserveFactorAccrued": "0",
-            "lifetimeScaledVariableDebt": "28100089103899838278824045",
-            "name": "Curve DAO Token",
-            "reserveFactor": "0",
-            "stableBorrowRate": "75242669974459782610115944",
-            "stableRateSlope1": "100000000000000000000000000",
-            "stableRateSlope2": "3000000000000000000000000000",
-            "symbol": "CRV",
-            "totalCurrentVariableDebt": "1722771652285869415870669",
-            "totalLiquidity": "8093007988043112180803978",
-            "totalLiquidityAsCollateral": "5792153746893666710922908",
-            "totalPrincipalStableDebt": "0",
-            "totalScaledVariableDebt": "1653936314435649208947763",
-            "utilizationRate": "0.16718888",
-            "variableBorrowRate": "31669868982121847827081160",
-            "variableRateSlope1": "70000000000000000000000000",
-            "variableRateSlope2": "3000000000000000000000000000"
-        },
-        {
             "availableLiquidity": "5600847997277",
             "averageStableRate": "93927265315560947126924933",
             "lifetimeCurrentVariableDebt": "80322806759419",
@@ -513,81 +440,6 @@ export const SAMPLE_DATA = {
             "variableBorrowRate": "39120969475229032205669132",
             "variableRateSlope1": "40000000000000000000000000",
             "variableRateSlope2": "600000000000000000000000000"
-        },
-        {
-            "availableLiquidity": "251569777320209297579220",
-            "averageStableRate": "0",
-            "lifetimeCurrentVariableDebt": "123555133233422700602752",
-            "lifetimeDepositorsInterestEarned": "50936252719648708749",
-            "lifetimeFlashLoanPremium": "282003389982720135",
-            "lifetimePrincipalStableDebt": "52500000000000000000000",
-            "lifetimeReserveFactorAccrued": "12742613126462844968",
-            "lifetimeScaledVariableDebt": "122895460025699704176136",
-            "name": "Kyber Network Crystal",
-            "reserveFactor": "2000",
-            "stableBorrowRate": "47250700708752091650336993",
-            "stableRateSlope1": "100000000000000000000000000",
-            "stableRateSlope2": "3000000000000000000000000000",
-            "symbol": "KNC",
-            "totalCurrentVariableDebt": "31770795483995714030323",
-            "totalLiquidity": "283282163991751775066596",
-            "totalLiquidityAsCollateral": "-5373594239394732554663",
-            "totalPrincipalStableDebt": "0",
-            "totalScaledVariableDebt": "31600141164405707208883",
-            "utilizationRate": "0.11194628",
-            "variableBorrowRate": "13800560567001673320269594",
-            "variableRateSlope1": "80000000000000000000000000",
-            "variableRateSlope2": "3000000000000000000000000000"
-        },
-        {
-            "availableLiquidity": "256538843427834181789915",
-            "averageStableRate": "49716233749126264485638353",
-            "lifetimeCurrentVariableDebt": "47435599845938423527398",
-            "lifetimeDepositorsInterestEarned": "13177231972346226766",
-            "lifetimeFlashLoanPremium": "10881563774807563282",
-            "lifetimePrincipalStableDebt": "4770726103339992135310",
-            "lifetimeReserveFactorAccrued": "3297791016519074365",
-            "lifetimeScaledVariableDebt": "47337440385708462483685",
-            "name": "0x Protocol Token",
-            "reserveFactor": "2000",
-            "stableBorrowRate": "44234748756420056533641384",
-            "stableRateSlope1": "100000000000000000000000000",
-            "stableRateSlope2": "3000000000000000000000000000",
-            "symbol": "ZRX",
-            "totalCurrentVariableDebt": "12801373501133780712370",
-            "totalLiquidity": "274069098045760560657925",
-            "totalLiquidityAsCollateral": "9641122047344117338708",
-            "totalPrincipalStableDebt": "4755658924954176308588",
-            "totalScaledVariableDebt": "12774739257758609309008",
-            "utilizationRate": "0.0639629",
-            "variableBorrowRate": "9964324129494039573548969",
-            "variableRateSlope1": "70000000000000000000000000",
-            "variableRateSlope2": "3000000000000000000000000000"
-        },
-        {
-            "availableLiquidity": "2612513851798745864984009",
-            "averageStableRate": "8595363057352413285875218",
-            "lifetimeCurrentVariableDebt": "2585822241231913016919636",
-            "lifetimeDepositorsInterestEarned": "386607980617473743018",
-            "lifetimeFlashLoanPremium": "110699269697673774000",
-            "lifetimePrincipalStableDebt": "190546531546280423156947",
-            "lifetimeReserveFactorAccrued": "96717381438676142091",
-            "lifetimeScaledVariableDebt": "2581869093309970919873533",
-            "name": "Enjin Coin",
-            "reserveFactor": "2000",
-            "stableBorrowRate": "7657384935000815653197866",
-            "stableRateSlope1": "100000000000000000000000000",
-            "stableRateSlope2": "3000000000000000000000000000",
-            "symbol": "ENJ",
-            "totalCurrentVariableDebt": "60544952734731016360853",
-            "totalLiquidity": "2705168695067480881186739",
-            "totalLiquidityAsCollateral": "1278302407470595821772575",
-            "totalPrincipalStableDebt": "32688710321565764500813",
-            "totalScaledVariableDebt": "60451712132432270932428",
-            "utilizationRate": "0.03425104",
-            "variableBorrowRate": "5360169454500570957238507",
-            "variableRateSlope1": "70000000000000000000000000",
-            "variableRateSlope2": "3000000000000000000000000000"
         }
         ]
     }
@@ -620,12 +472,12 @@ export function getInstantPoolDepositAPY(reserve) {
     return apy
 }
 
-export function getAverageRate(result) {
+export function getAverageRate(liquidityIndexEarliest, liquidityIndexLatest, timestampEarliest, timestampLatest) {
     let averageRate = calculateAverageRate(
-        result.paramsHistory[0].liquidityIndex,
-        result.liquidityIndex,
-        result.paramsHistory[0].timestamp,
-        result.lastUpdateTimestamp
+        liquidityIndexEarliest,
+        liquidityIndexLatest,
+        timestampEarliest,
+        timestampLatest
     );
     return averageRate
 }
@@ -637,4 +489,46 @@ function getDecimal(number, precision) {
 
 export function formatAsPercent(decimal) {
     return parseFloat(decimal*100).toFixed(2) + "%"
+}
+
+export function formatGraphData(paramsHistory, deposit) {
+    invariant(typeof deposit === "number", "expected deposit to be a number");
+    //let subset = paramsHistory.filter(); //filter to take only 1st entry of the day
+    ///call getAverageRate on each pair of items
+    let interests  = [];
+    let graphData = [];
+
+    interests[0] = 0;
+
+    graphData[0] = {
+        day: paramsHistory[0].timestamp, 
+        Principle: deposit, 
+        Interest: interests[0],
+        Rate: formatAsPercent(0),
+    }
+    //get rid of duplicates
+    let filtered = uniqBy(paramsHistory, "timestamp");
+    console.log("Reduced array from ", paramsHistory.length, " to ", filtered.length);
+
+    let i;
+    for (i = 0; i < filtered.length-1; i++) {
+        const averageRate = getAverageRate(
+            filtered[i].liquidityIndex, 
+            filtered[i+1].liquidityIndex,
+            filtered[i].timestamp, 
+            filtered[i+1].timestamp
+        );
+        const interest = (deposit + interests[i]) * averageRate * (filtered[i+1].timestamp - filtered[i].timestamp) / (365 * 24 * 60 * 60);
+        interests[i+1] = interests[i]+ interest;
+
+        graphData[i+1] = {
+            day: filtered[i+1].timestamp, 
+            Principle: deposit,
+            Interest: interests[i+1],
+            Rate: formatAsPercent(averageRate),
+        }
+    }
+
+    return graphData;
+
 }

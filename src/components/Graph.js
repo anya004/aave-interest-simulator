@@ -1,10 +1,10 @@
 import { invariant } from 'ts-invariant';
 import { isArray } from 'lodash';
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { getAverageRate } from '../helpers.js';
+import { getAverageRate, formatGraphData } from '../helpers.js';
 import {
-    AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip,
+    AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ComposedChart, Tooltip,
   } from 'recharts';
 
 const GET_CURRENT_ASSET_DATA_FOR_AVG_APY = gql`
@@ -32,37 +32,15 @@ const GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY = gql`
     }  
 `;
 
-const data_graph = [
-    {
-      day: 1612021415, Principle: 1000, Interest: 2400,
-    },
-    {
-      day: 1612107815, Principle: 1000, Interest: 1398,
-    },
-    {
-      day: 1612194215, Principle: 1000, Interest: 9800,
-    },
-    {
-      day: 1612280615, Principle: 1000, Interest: 3908,
-    },
-    {
-      day: 1612367015, Principle: 1000, Interest: 4800,
-    },
-    {
-      day: 1612453415, Principle: 1000, Interest: 3800,
-    },
-    {
-      day: 1612543415, Principle: 1000, Interest: 4300,
-    },
-];
-
-const Graph = ({asset}) => {
+const Graph = ({asset, deposit}) => {
+    const [now] = useState(Math.round(Date.now() / 1000));
+    const [daysAgo30] = useState(Math.round((Date.now()-(30*24*60*60*1000)) / 1000));
 
     const { loading, error, data, fetchMore } = useQuery(GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY, {
         variables: {
             symbol: asset,
-            timestamp_gt: 1609858800, //convert to a function
-            timestamp_lte: 1612537620, //convert to a function, starts at now...
+            timestamp_gt: daysAgo30,
+            timestamp_lte: now,
             first: 1000
         },
     });
@@ -112,7 +90,16 @@ const Graph = ({asset}) => {
         return () => {
             keepScanning = false;
         }
-    }, [data])
+    }, [data]);
+
+    // const graphData = useMemo(() => {
+    //     const paramsHistory = data?.reserves?.[0]?.paramsHistory;
+    //     if (!paramsHistory) return [];
+
+    //     // compute here...
+
+    //     return someTransformationOfData;
+    // }, [data]);
 
     if (loading)
         return 'Loading...';
@@ -121,10 +108,13 @@ const Graph = ({asset}) => {
 
     console.log("Rendering with data.reserves[0].paramsHistory.length", data.reserves[0].paramsHistory.length);
     
+    const graphData = formatGraphData(data.reserves[0].paramsHistory, deposit);
+    console.log("Graph Data:", graphData.slice(0, 300));
+
     return (
         <ResponsiveContainer width="85%" height="85%">
             <AreaChart
-                data={data_graph}
+                data={graphData}
                 margin={{
                 top: 30, right: 30, left: 30, bottom: 15,
                 }}
@@ -133,16 +123,21 @@ const Graph = ({asset}) => {
                 <XAxis 
                     label={{ value: 'Day', position: "insideBottom", offset: -10 }}
                     scale="time"
+                    type="number"
+                    domain = {['auto', 'auto']}
+                    tickCount={9}
+                    angle={-30}
+                    interval="preserveStartEnd"
+                    tickFormatter = {(unixTime) => new Date(unixTime*1000).toLocaleDateString()}
                     dataKey="day"
-                    tickFormatter = {(unixTime) => new Date(unixTime*1000).getDate()}
                     />
                 <YAxis />
                 <Tooltip />
-                <Area type="monotone" dataKey="Principle" stackId="1" stroke="#8884d8" fill="#B6509E" />
                 <Area type="monotone" dataKey="Interest" stackId="1" stroke="#82ca9d" fill="#2EBAC6" />
             </AreaChart>
         </ResponsiveContainer>
     );
 }
+//<Area type="monotone" dataKey="Principle" stackId="1" stroke="#8884d8" fill="#B6509E" />
 
 export default Graph;

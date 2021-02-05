@@ -19,7 +19,7 @@ function App() {
       <DepositAmountTextbox onChange={setDeposit} value={deposit} />
       <CurrentAPYDisplay asset={asset} />
       <div class='Graph'>
-        <Graph asset={asset} />
+        <Graph asset={asset} deposit={deposit} />
       </div>
     </div>
   );
