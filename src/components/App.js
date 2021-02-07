@@ -6,6 +6,7 @@ import List from './List.js';
 import SelectDepositAsset from './SelectDepositAsset.js';
 import SelectBorrowAsset from './SelectBorrowAsset.js';
 import DepositAmountTextbox from './DepositAmountTextbox.js';
+import BorrowAmountTextbox from './BorrowAmountTextbox.js';
 import GraphRadio from './GraphRadio';
 import CurrencyRadio from './CurrencyRadio.js';
 import Graph from './Graph.js';
@@ -16,6 +17,7 @@ function App() {
   const [asset, setAsset] = useState("DAI");
   const [borrowAsset, setBorrowAsset] = useState("DAI");
   const [deposit, setDeposit] = useState(1000);
+  const [borrowed, setBorrowed] = useState(0);
   const [radioSelectedOption, setRadioSelectedOption] = useState("interest");
   const [currencySelectedOption, setCurrencySelectedOption] = useState("native");
 
@@ -32,6 +34,9 @@ function App() {
           </div>
           <div class="col-2">
             <SelectBorrowAsset onChange={setBorrowAsset} value={borrowAsset} />
+          </div>
+          <div class="col-3">
+            <BorrowAmountTextbox onChange={setBorrowed} value={borrowed} />
           </div>
         </div>
         
