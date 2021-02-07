@@ -525,7 +525,7 @@ export function formatGraphData(paramsHistory, deposit) {
             day: filtered[i+1].timestamp, 
             Principle: deposit,
             Interest: interests[i+1],
-            Rate: formatAsPercent(averageRate),
+            Rate: parseFloat(averageRate*100).toFixed(2),
         }
     }
 
