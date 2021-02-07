@@ -1,10 +1,10 @@
 import { invariant } from 'ts-invariant';
 import { isArray } from 'lodash';
 import React, { useState, useEffect } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useQuery, useMemo } from '@apollo/client';
 import { getAverageRate, formatGraphData } from '../helpers.js';
 import {
-    AreaChart, Area, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ComposedChart, Tooltip,
+    AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ComposedChart, Tooltip,
   } from 'recharts';
 
 const GET_CURRENT_ASSET_DATA_FOR_AVG_APY = gql`
@@ -32,7 +32,7 @@ const GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY = gql`
     }  
 `;
 
-const Graph = ({asset, deposit}) => {
+const Graph = ({asset, deposit, graphType}) => {
     const [now] = useState(Math.round(Date.now() / 1000));
     const [daysAgo30] = useState(Math.round((Date.now()-(30*24*60*60*1000)) / 1000));
 
@@ -95,10 +95,7 @@ const Graph = ({asset, deposit}) => {
     // const graphData = useMemo(() => {
     //     const paramsHistory = data?.reserves?.[0]?.paramsHistory;
     //     if (!paramsHistory) return [];
-
-    //     // compute here...
-
-    //     return someTransformationOfData;
+    //     return formatGraphData(data.reserves[0].paramsHistory, deposit);
     // }, [data]);
 
     if (loading)
@@ -106,38 +103,82 @@ const Graph = ({asset, deposit}) => {
     if (error)
         return `Error! ${error.message}`;  
 
-    console.log("Rendering with data.reserves[0].paramsHistory.length", data.reserves[0].paramsHistory.length);
+    //console.log("Rendering with data.reserves[0].paramsHistory.length", data.reserves[0].paramsHistory.length);
     
     const graphData = formatGraphData(data.reserves[0].paramsHistory, deposit);
     console.log("Graph Data:", graphData.slice(0, 300));
 
-    return (
-        <ResponsiveContainer width="85%" height="85%">
-            <AreaChart
-                data={graphData}
-                margin={{
-                top: 30, right: 30, left: 30, bottom: 15,
-                }}
-            >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis 
-                    label={{ value: 'Day', position: "insideBottom", offset: -10 }}
-                    scale="time"
-                    type="number"
-                    domain = {['auto', 'auto']}
-                    tickCount={9}
-                    angle={-30}
-                    interval="preserveStartEnd"
-                    tickFormatter = {(unixTime) => new Date(unixTime*1000).toLocaleDateString()}
-                    dataKey="day"
+    let options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour12: false};
+    if (graphType === "interest")
+        return (
+            <ResponsiveContainer width="100%" height="85%">
+                <AreaChart
+                    data={graphData}
+                    margin={{
+                    top: 20, right: 30, left: 30, bottom: 20,
+                    }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <defs>
+                        <linearGradient id="colorUv"  x1="0" y1="1" x2="1" y2="0">
+                            <stop offset="5%" stopColor="#2EBAC6" stopOpacity={0.7}/>
+                            <stop offset="95%" stopColor="#B6509E" stopOpacity={0.7}/>
+                        </linearGradient>
+                    </defs>
+                    <XAxis 
+                        label={{ value: 'Day', position: "insideBottom", offset: -10 }}
+                        scale="time"
+                        type="number"
+                        domain = {['auto', 'auto']}
+                        tickCount={9}
+                        angle={-30}
+                        interval="preserveStartEnd"
+                        tickFormatter = {(unixTime) => new Date(unixTime*1000).toLocaleDateString()}
+                        dataKey="day"
+                        />
+                    <YAxis 
+                        label={{ value: asset, angle: -90, position: 'insideLeft'}}
                     />
-                <YAxis />
-                <Tooltip />
-                <Area type="monotone" dataKey="Interest" stackId="1" stroke="#82ca9d" fill="#2EBAC6" />
-            </AreaChart>
-        </ResponsiveContainer>
-    );
+                    <Tooltip 
+                        labelFormatter={(unixTime) => new Date(unixTime*1000).toLocaleString('en-US')}
+                        formatter={(value, name, props) => ( [value.toFixed(3).toString().concat(" ", asset), "Interest", ] )}
+                    />
+                    <Area type="monotone" dataKey="Interest" stackId="1" stroke="#B6509E"  fill="url(#colorUv)" />
+                </AreaChart>
+            </ResponsiveContainer>
+        );
+    else
+        return (
+            <ResponsiveContainer width="100%" height="85%">
+                <LineChart
+                    data={graphData}
+                    margin={{
+                    top: 20, right: 30, left: 30, bottom: 20,
+                    }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                        label={{ value: 'Day', position: "insideBottom", offset: -10 }}
+                        scale="time"
+                        type="number"
+                        domain = {['auto', 'auto']}
+                        tickCount={9}
+                        angle={-30}
+                        interval="preserveStartEnd"
+                        tickFormatter = {(unixTime) => new Date(unixTime*1000).toLocaleDateString()}
+                        dataKey="day"
+                        />
+                    <YAxis 
+                        label={{ value: "Percent", angle: -90, position: 'insideLeft'}}
+                    />
+                    <Tooltip 
+                        labelFormatter={(unixTime) => new Date(unixTime*1000).toLocaleString('en-US')}
+                    />
+                    <Line type="monotone" dataKey="Rate" stackId="1" stroke="#B6509E" fill="#2EBAC6" />
+                </LineChart>
+            </ResponsiveContainer>
+        );
 }
-//<Area type="monotone" dataKey="Principle" stackId="1" stroke="#8884d8" fill="#B6509E" />
+//<Area type="monotone" dataKey="Principle" stackId="1" stroke="#8884d8" fill="#B6509E" /> fill="#2EBAC6"
 
 export default Graph;

@@ -14,10 +14,14 @@
   }
 }
 
+.App-page {
+  padding: 1.5vh;
+}
+
 .App-header {
   background: linear-gradient(45deg, rgb(46,186,198), rgb(182,80,158));
   z-index: 999;
-  min-height: 1vh;
+  height: 8vh;
   position: sticky;
   top: 0;
   display: flex;
