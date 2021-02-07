@@ -9,7 +9,7 @@ const GET_ASSET_SYMBOLS = gql`
 }
 `;
 
-function SelectTag({ onChange, value }) {
+function SelectDepositAsset({ onChange, value }) {
     const { loading, error, data } = useQuery(GET_ASSET_SYMBOLS);
 
     function handleChange(e) {
@@ -34,4 +34,4 @@ function SelectTag({ onChange, value }) {
     );
 }
 
-export default SelectTag;
+export default SelectDepositAsset;

@@ -3,7 +3,8 @@ import './../styles/App.css';
 import React, { useState } from 'react';
 import Header from './Header.js';
 import List from './List.js';
-import SelectTag from './SelectTag.js';
+import SelectDepositAsset from './SelectDepositAsset.js';
+import SelectBorrowAsset from './SelectBorrowAsset.js';
 import DepositAmountTextbox from './DepositAmountTextbox.js';
 import GraphRadio from './GraphRadio';
 import CurrencyRadio from './CurrencyRadio.js';
@@ -13,6 +14,7 @@ import Avg30DayAPYDisplay from './Avg30DayAPYDisplay.js';
 
 function App() {
   const [asset, setAsset] = useState("DAI");
+  const [borrowAsset, setBorrowAsset] = useState("DAI");
   const [deposit, setDeposit] = useState(1000);
   const [radioSelectedOption, setRadioSelectedOption] = useState("interest");
   const [currencySelectedOption, setCurrencySelectedOption] = useState("native");
@@ -23,10 +25,13 @@ function App() {
       <div class="App-page">
         <div class="container-fluid row">
           <div class="col-2">
-            <SelectTag onChange={setAsset} value={asset} />
+            <SelectDepositAsset onChange={setAsset} value={asset} />
           </div>
           <div class="col-3">
             <DepositAmountTextbox onChange={setDeposit} value={deposit} />
+          </div>
+          <div class="col-2">
+            <SelectBorrowAsset onChange={setBorrowAsset} value={borrowAsset} />
           </div>
         </div>
         
