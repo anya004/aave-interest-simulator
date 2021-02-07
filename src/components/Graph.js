@@ -24,7 +24,6 @@ const GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY = gql`
     query ReservesRatesHistory($timestamp_gt: Int, $timestamp_lte: Int, $symbol: String!, $first: Int) {
         reserves(where: {symbol: $symbol}) {
             paramsHistory(where: {timestamp_gt: $timestamp_gt, timestamp_lte: $timestamp_lte}, first: $first, orderBy: timestamp, orderDirection: asc) {
-                variableBorrowIndex
                 liquidityIndex
                 timestamp
                 priceInUsd
@@ -33,10 +32,23 @@ const GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY = gql`
     }  
 `;
 
-const Graph = ({asset, deposit, graphType, currencySelectedOption}) => {
+const GET_HISTORICAL_ASSET_DATA_FOR_VARIABLE_RATE = gql`
+    query ReservesRatesHistory($timestamp_gt: Int, $timestamp_lte: Int, $symbol: String!, $first: Int) {
+        reserves(where: {symbol: $symbol}) {
+            paramsHistory(where: {timestamp_gt: $timestamp_gt, timestamp_lte: $timestamp_lte}, first: $first, orderBy: timestamp, orderDirection: asc) {
+                variableBorrowIndex
+                timestamp
+                priceInUsd
+            }
+        }
+    }  
+`;
+
+const Graph = ({asset, deposit, borrowAsset, graphType, currencySelectedOption}) => {
     const [now] = useState(Math.round(Date.now() / 1000));
     const [daysAgo30] = useState(Math.round((Date.now()-(30*24*60*60*1000)) / 1000));
 
+    //DEPOSIT APY
     const { loading, error, data, fetchMore } = useQuery(GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY, {
         variables: {
             symbol: asset,
@@ -45,8 +57,6 @@ const Graph = ({asset, deposit, graphType, currencySelectedOption}) => {
             first: 1000
         },
     });
-
-    console.log(data);
 
     useEffect(() => {
         if (!data)
@@ -98,13 +108,70 @@ const Graph = ({asset, deposit, graphType, currencySelectedOption}) => {
     //     if (!paramsHistory) return [];
     //     return formatGraphData(data.reserves[0].paramsHistory, deposit);
     // }, [data]);
+    
+    //VARIABLE BORROW
+    const { data: dataVB, error: errorVB, loading: loadingVB, fetchMore: fetchMoreVB} = useQuery(GET_HISTORICAL_ASSET_DATA_FOR_VARIABLE_RATE, {
+        variables: {
+            symbol: borrowAsset,
+            timestamp_gt: daysAgo30,
+            timestamp_lte: now,
+            first: 1000
+        },
+    });
 
-    if (loading)
+    useEffect(() => {
+        if (!dataVB)
+            return;
+
+        let keepScanningVB = true;
+
+        if (keepScanningVB){
+            // debugger;
+            const maxTimestampVB = Math.max(...dataVB.reserves[0].paramsHistory.map(({ timestamp }) => timestamp));
+            fetchMoreVB({
+                variables: {
+                    timestamp_gt: maxTimestampVB
+                },
+                updateQuery: (prev, { fetchMoreResult }) => {
+                    if (!fetchMoreResult) {
+                        return prev;
+                    }
+
+                    if (!fetchMoreResult.reserves[0].paramsHistory.length) {
+                        keepScanningVB = false;
+                        return prev;
+                    }
+
+                    invariant(isArray(prev.reserves[0].paramsHistory), "prev paramsHistory expected to be an array");
+                    invariant(isArray(fetchMoreResult.reserves[0].paramsHistory), "fetchMoreResult paramsHistory expected to be an array");
+
+                    return {
+                        reserves: [
+                            {
+                                paramsHistory: [
+                                    ...prev.reserves[0].paramsHistory,
+                                    ...fetchMoreResult.reserves[0].paramsHistory,
+                                ]
+                            }
+                        ]
+                    };
+                }
+            });
+        }
+
+        return () => {
+            keepScanningVB = false;
+        }
+    }, [dataVB]);
+
+    if (loading || loadingVB)
         return 'Loading...';
     if (error)
-        return `Error! ${error.message}`;  
+        return `Error! ${error.message}`;
+    if (errorVB)
+        return `Error! ${errorVB.message}`;
 
-    //console.log("Rendering with data.reserves[0].paramsHistory.length", data.reserves[0].paramsHistory.length);
+    console.log("Rendering with dataVB.reserves[0].paramsHistory.length", data.reserves[0].paramsHistory.length);
     
     const graphData = formatGraphData(data.reserves[0].paramsHistory, deposit);
     console.log("Graph Data:", graphData.slice(0, 300));

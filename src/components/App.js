@@ -57,7 +57,7 @@ function App() {
               {radioSelectedOption == "rate" &&
                 <h4>Historical Rate Over the Last 30 Days</h4>
               }
-              <Graph asset={asset} deposit={deposit} graphType={radioSelectedOption} currencySelectedOption={currencySelectedOption}/>
+              <Graph asset={asset} deposit={deposit} borrowAsset={borrowAsset} graphType={radioSelectedOption} currencySelectedOption={currencySelectedOption}/>
             </div>
           </div>
           <div class="col-3 w-25">
