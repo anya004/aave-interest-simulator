@@ -27,12 +27,13 @@ const GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY = gql`
                 variableBorrowIndex
                 liquidityIndex
                 timestamp
+                priceInUsd
             }
         }
     }  
 `;
 
-const Graph = ({asset, deposit, graphType}) => {
+const Graph = ({asset, deposit, graphType, currencySelectedOption}) => {
     const [now] = useState(Math.round(Date.now() / 1000));
     const [daysAgo30] = useState(Math.round((Date.now()-(30*24*60*60*1000)) / 1000));
 
@@ -137,13 +138,20 @@ const Graph = ({asset, deposit, graphType}) => {
                         dataKey="day"
                         />
                     <YAxis 
-                        label={{ value: asset, angle: -90, position: 'insideLeft'}}
+                        label={{ value: currencySelectedOption == "native" ?  asset:"USD", angle: -90, position: 'insideLeft'}}
                     />
                     <Tooltip 
                         labelFormatter={(unixTime) => new Date(unixTime*1000).toLocaleString('en-US')}
-                        formatter={(value, name, props) => ( [value.toFixed(3).toString().concat(" ", asset), "Interest", ] )}
+                        formatter={
+                            (value, name, props) => ( 
+                                [
+                                    currencySelectedOption == "native" ? value.toFixed(3).toString().concat(" ", asset):"$".concat(value.toFixed(2).toString()), 
+                                    "Interest", 
+                                ] 
+                            )
+                        }
                     />
-                    <Area type="monotone" dataKey="Interest" stackId="1" stroke="#B6509E"  fill="url(#colorUv)" />
+                    <Area type="monotone" dataKey={currencySelectedOption == "native" ?  "Interest":"InterestUsd"} stackId="1" stroke="#B6509E"  fill="url(#colorUv)" />
                 </AreaChart>
             </ResponsiveContainer>
         );

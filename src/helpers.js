@@ -521,10 +521,13 @@ export function formatGraphData(paramsHistory, deposit) {
         const interest = (deposit + interests[i]) * averageRate * (filtered[i+1].timestamp - filtered[i].timestamp) / (365 * 24 * 60 * 60);
         interests[i+1] = interests[i]+ interest;
 
+        const interestUsd = interests[i+1] * filtered[i+1].priceInUsd;
+
         graphData[i+1] = {
             day: filtered[i+1].timestamp, 
             Principle: deposit,
             Interest: interests[i+1],
+            InterestUsd: interestUsd,
             Rate: parseFloat(averageRate*100).toFixed(2),
         }
     }

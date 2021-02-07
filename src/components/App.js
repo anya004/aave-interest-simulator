@@ -6,6 +6,7 @@ import List from './List.js';
 import SelectTag from './SelectTag.js';
 import DepositAmountTextbox from './DepositAmountTextbox.js';
 import GraphRadio from './GraphRadio';
+import CurrencyRadio from './CurrencyRadio.js';
 import Graph from './Graph.js';
 import CurrentAPYDisplay from './CurrentAPYDisplay.js';
 import Avg30DayAPYDisplay from './Avg30DayAPYDisplay.js';
@@ -14,6 +15,7 @@ function App() {
   const [asset, setAsset] = useState("DAI");
   const [deposit, setDeposit] = useState(1000);
   const [radioSelectedOption, setRadioSelectedOption] = useState("interest");
+  const [currencySelectedOption, setCurrencySelectedOption] = useState("native");
 
   return (
     <div className="App">
@@ -30,8 +32,13 @@ function App() {
         
         <div class="container-fluid row">
           <div class="col-9">
-            <div class="row col-3">
-              <GraphRadio onChange={setRadioSelectedOption} radioSelectedOption={radioSelectedOption} />
+            <div class="row">
+              <div class="col-3"> 
+                <GraphRadio onChange={setRadioSelectedOption} radioSelectedOption={radioSelectedOption} />
+              </div>
+              <div class="col-3">
+                <CurrencyRadio onChange={setCurrencySelectedOption} currencySelectedOption={currencySelectedOption} />
+              </div>
             </div>
             <div class="row Graph">
               {radioSelectedOption == "interest" &&
@@ -40,7 +47,7 @@ function App() {
               {radioSelectedOption == "rate" &&
                 <h4>Historical Rate Over the Last 30 Days</h4>
               }
-              <Graph asset={asset} deposit={deposit} graphType={radioSelectedOption}/>
+              <Graph asset={asset} deposit={deposit} graphType={radioSelectedOption} currencySelectedOption={currencySelectedOption}/>
             </div>
           </div>
           <div class="col-3 w-25">
