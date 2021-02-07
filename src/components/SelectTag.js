@@ -23,11 +23,14 @@ function SelectTag({ onChange, value }) {
         return `Error! ${error.message}`;
     
     return (
-        <select onChange={handleChange} value={value}>
+        <form class="form-floating">
+        <select id="floatingSelectValue" class="form-select form-select-sm mb-3" onChange={handleChange} value={value}>
             {data.reserves.map((reserve, i) => (
                 <option key={reserve.symbol} value={reserve.symbol}>{reserve.symbol}</option>
             ))}
         </select>
+        <label for="floatingSelectValue">Deposit Asset</label>
+        </form>
     );
 }
 
