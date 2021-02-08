@@ -33,9 +33,16 @@ function CurrentAPYDisplay ({ asset }) {
     
     //console.log(formatAsPercent(getInstantPoolDepositAPY(data.reserves[0])));
     return (
-      <div className="App">
-          <label>Current APY Rate: {formatAsPercent(getInstantPoolDepositAPY(data.reserves[0]))}</label>
-      </div>
+      <div class="row">
+      <div class="card" style={{height: "5rem"}}>
+        <div class="card-body">
+             
+            <h5 class="card-title text-success">{formatAsPercent(getInstantPoolDepositAPY(data.reserves[0]))}
+            </h5>
+            <p>Current Deposit APY Rate</p>
+        </div>
+     </div>
+  </div>
     );
   };
   

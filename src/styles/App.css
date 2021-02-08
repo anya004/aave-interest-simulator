@@ -32,12 +32,22 @@
   color: white;
 }
 
+.App-footer {
+  position: sticky;
+}
+
 .App-link {
   color: #61dafb;
 }
 
 .Graph {
-  height: 75vh;
+  height: 70vh;
+  margin-top: 1.75vh;
+}
+
+.stats {
+  margin-top: 13vh;
+  height: 70vh
 }
 
 @keyframes App-logo-spin {

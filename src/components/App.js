@@ -1,4 +1,3 @@
-import logo from './../logo.svg';
 import './../styles/App.css';
 import React, { useState } from 'react';
 import Header from './Header.js';
@@ -12,14 +11,21 @@ import CurrencyRadio from './CurrencyRadio.js';
 import Graph from './Graph.js';
 import CurrentAPYDisplay from './CurrentAPYDisplay.js';
 import Avg30DayAPYDisplay from './Avg30DayAPYDisplay.js';
+import Avg30DayVariableAPYDisplay from './Avg30DayVariableAPYDisplay.js';
+import InterestBalance from './InterestBalance.js';
+import CurrentBorrowDisplay from './CurrentBorrowDisplay.js';
+import Footer from './Footer.js';
 
 function App() {
   const [asset, setAsset] = useState("DAI");
+  const [depositAssetAsCollatoral, setDepositAssetAsCollatoral] = useState(true);
   const [borrowAsset, setBorrowAsset] = useState("DAI");
   const [deposit, setDeposit] = useState(1000);
   const [borrowed, setBorrowed] = useState(0);
   const [radioSelectedOption, setRadioSelectedOption] = useState("interest");
   const [currencySelectedOption, setCurrencySelectedOption] = useState("native");
+  const [interestEarned, setInterstEarned] = useState(0);
+  const [interestOwed, setInterstOwed] = useState(0);
 
   return (
     <div className="App">
@@ -27,7 +33,12 @@ function App() {
       <div class="App-page">
         <div class="container-fluid row">
           <div class="col-2">
-            <SelectDepositAsset onChange={setAsset} value={asset} />
+            <SelectDepositAsset 
+              onChange={setAsset} 
+              value={asset} 
+              depositAssetAsCollatoral={depositAssetAsCollatoral} 
+              setDepositAssetAsCollatoral={setDepositAssetAsCollatoral}
+            />
           </div>
           <div class="col-3">
             <DepositAmountTextbox onChange={setDeposit} value={deposit} />
@@ -60,9 +71,20 @@ function App() {
               <Graph asset={asset} deposit={deposit} borrowAsset={borrowAsset} graphType={radioSelectedOption} currencySelectedOption={currencySelectedOption}/>
             </div>
           </div>
-          <div class="col-3 w-25">
-            <CurrentAPYDisplay asset={asset} />
-            <Avg30DayAPYDisplay asset={asset} />
+          <div class="container-fluid col-3 stats">
+            <div class="row">
+              <InterestBalance interestEarned={interestEarned} interestOwed={interestOwed} />
+            </div>
+            <div class="row">
+                <CurrentAPYDisplay asset={asset} />
+        </div>
+        <div class="row">
+                <Avg30DayAPYDisplay asset={asset} />
+              </div>
+            <div class="row">
+              <Avg30DayVariableAPYDisplay asset={borrowAsset} />
+            </div>
+            <CurrentBorrowDisplay asset={borrowAsset}/>
           </div>
         </div>
       </div>
