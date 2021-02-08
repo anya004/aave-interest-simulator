@@ -2,7 +2,7 @@ import { calculateAverageRate } from "@aave/protocol-js";
 import BigNumber from 'bignumber.js';
 import { invariant } from 'ts-invariant';
 import { uniqBy } from 'lodash';
-import { parseType } from 'graphql';
+import { buildClientSchema, parseType } from 'graphql';
 
 export const SAMPLE_DAI =
     {
@@ -482,7 +482,7 @@ export function getAverageRate(liquidityIndexEarliest, liquidityIndexLatest, tim
     return averageRate
 }
 
-function getDecimal(number, precision) {
+export function getDecimal(number, precision) {
     let result = BigNumber(number) / BigNumber(10) ** BigNumber(precision);
     return result
 }
@@ -503,8 +503,13 @@ export function formatGraphData(paramsHistory, deposit) {
     graphData[0] = {
         day: paramsHistory[0].timestamp, 
         Principle: deposit, 
+        Borrowed: null,
         Interest: interests[0],
+        InterestUsd: interests[0],
+        OwedInterest: null,
+        OwedInterestUsd: null,
         Rate: formatAsPercent(0),
+        RateBorrowed: null
     }
     //get rid of duplicates
     let filtered = uniqBy(paramsHistory, "timestamp");
@@ -526,9 +531,67 @@ export function formatGraphData(paramsHistory, deposit) {
         graphData[i+1] = {
             day: filtered[i+1].timestamp, 
             Principle: deposit,
+            Borrowed: null,
             Interest: interests[i+1],
             InterestUsd: interestUsd,
+            OwedInterest: null,
+            OwedInterestUsd: null,
             Rate: parseFloat(averageRate*100).toFixed(2),
+            RateBorrowed: null
+        }
+    }
+
+    return graphData;
+
+}
+
+export function formatGraphDataVariableBorrowed(paramsHistory, deposit) {
+    invariant(typeof deposit === "number", "expected deposit to be a number");
+    //let subset = paramsHistory.filter(); //filter to take only 1st entry of the day
+    ///call getAverageRate on each pair of items
+    let interests  = [];
+    let graphData = [];
+
+    interests[0] = 0;
+
+    graphData[0] = {
+        day: paramsHistory[0].timestamp, 
+        Principle: null, 
+        Borrowed: deposit,
+        Interest: null,
+        InterestUsd: null,
+        OwedInterest: interests[0],
+        OwedInterestUsd: interests[0],
+        Rate: null,
+        RateBorrowed: formatAsPercent(0),
+    }
+    //get rid of duplicates
+    let filtered = uniqBy(paramsHistory, "timestamp");
+    console.log("Reduced array from ", paramsHistory.length, " to ", filtered.length);
+
+    let i;
+    for (i = 0; i < filtered.length-1; i++) {
+        const averageRate = getAverageRate(
+            filtered[i].variableBorrowIndex, 
+            filtered[i+1].variableBorrowIndex,
+            filtered[i].timestamp, 
+            filtered[i+1].timestamp
+        );
+        const interest = (deposit + interests[i]) * averageRate * (filtered[i+1].timestamp - filtered[i].timestamp) / (365 * 24 * 60 * 60);
+        interests[i+1] = interests[i]+ interest;
+
+        const interestUsd = interests[i+1] * filtered[i+1].priceInUsd;
+
+        graphData[i+1] = {
+            day: filtered[i+1].timestamp, 
+            Principle: null,
+            Borrowed: deposit,
+            Interest: null,
+            InterestUsd: null,
+            OwedInterest: interests[i+1],
+            OwedInterestUsd: interestUsd,
+            Rate: null,
+            RateBorrowed: parseFloat(averageRate*100).toFixed(2),
         }
     }
 

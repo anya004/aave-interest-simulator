@@ -1,10 +1,10 @@
 import { invariant } from 'ts-invariant';
-import { isArray } from 'lodash';
+import { cloneDeep, isArray } from 'lodash';
 import React, { useState, useEffect } from 'react';
 import { gql, useQuery, useMemo } from '@apollo/client';
-import { getAverageRate, formatGraphData } from '../helpers.js';
+import { getAverageRate, formatGraphData , formatGraphDataVariableBorrowed} from '../helpers.js';
 import {
-    AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ComposedChart, Tooltip,
+    AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ComposedChart, Tooltip, Legend
   } from 'recharts';
 
 const GET_CURRENT_ASSET_DATA_FOR_AVG_APY = gql`
@@ -23,7 +23,9 @@ const GET_CURRENT_ASSET_DATA_FOR_AVG_APY = gql`
 const GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY = gql`
     query ReservesRatesHistory($timestamp_gt: Int, $timestamp_lte: Int, $symbol: String!, $first: Int) {
         reserves(where: {symbol: $symbol}) {
+            symbol
             paramsHistory(where: {timestamp_gt: $timestamp_gt, timestamp_lte: $timestamp_lte}, first: $first, orderBy: timestamp, orderDirection: asc) {
+                id
                 liquidityIndex
                 timestamp
                 priceInUsd
@@ -33,10 +35,13 @@ const GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY = gql`
 `;
 
 const GET_HISTORICAL_ASSET_DATA_FOR_VARIABLE_RATE = gql`
-    query ReservesRatesHistory($timestamp_gt: Int, $timestamp_lte: Int, $symbol: String!, $first: Int) {
+    query VBReservesRatesHistory($timestamp_gt: Int, $timestamp_lte: Int, $symbol: String!, $first: Int) {
         reserves(where: {symbol: $symbol}) {
+            symbol
             paramsHistory(where: {timestamp_gt: $timestamp_gt, timestamp_lte: $timestamp_lte}, first: $first, orderBy: timestamp, orderDirection: asc) {
+                id
                 variableBorrowIndex
+                variableBorrowRate
                 timestamp
                 priceInUsd
             }
@@ -44,7 +49,7 @@ const GET_HISTORICAL_ASSET_DATA_FOR_VARIABLE_RATE = gql`
     }  
 `;
 
-const Graph = ({asset, deposit, borrowAsset, graphType, currencySelectedOption}) => {
+const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySelectedOption, setInterstOwed, setInterstEarned}) => {
     const [now] = useState(Math.round(Date.now() / 1000));
     const [daysAgo30] = useState(Math.round((Date.now()-(30*24*60*60*1000)) / 1000));
 
@@ -56,52 +61,58 @@ const Graph = ({asset, deposit, borrowAsset, graphType, currencySelectedOption})
             timestamp_lte: now,
             first: 1000
         },
+        //fetchPolicy: 'no-cache',
     });
 
-    useEffect(() => {
-        if (!data)
-            return;
+    // useEffect(() => {
+    //     if (!data)
+    //         return;
 
-        let keepScanning = true;
+    //     let keepScanning = true;
 
-        if (keepScanning){
-            // debugger;
-            const maxTimestamp = Math.max(...data.reserves[0].paramsHistory.map(({ timestamp }) => timestamp));
-            fetchMore({
-                variables: {
-                    timestamp_gt: maxTimestamp
-                },
-                updateQuery: (prev, { fetchMoreResult }) => {
-                    if (!fetchMoreResult) {
-                        return prev;
-                    }
+    //     console.log('data', JSON.parse(JSON.stringify(data)));
+    //     if (keepScanning){
+    //         // debugger;
+    //         const maxTimestamp = Math.max(...data.reserves[0].paramsHistory.map(({ timestamp }) => timestamp));
+    //         fetchMore({
+    //             variables: {
+    //                 timestamp_gt: maxTimestamp
+    //             },
+    //             updateQuery: (prev, { fetchMoreResult }) => {
+    //                 console.log("deposit query prev", prev);
+    //                 if (!fetchMoreResult) {
+    //                     return prev;
+    //                 }
 
-                    if (!fetchMoreResult.reserves[0].paramsHistory.length) {
-                        keepScanning = false;
-                        return prev;
-                    }
+    //                 if (!fetchMoreResult.reserves[0].paramsHistory.length) {
+    //                     keepScanning = false;
+    //                     return prev;
+    //                 }
 
-                    invariant(isArray(prev.reserves[0].paramsHistory), "prev paramsHistory expected to be an array");
-                    invariant(isArray(fetchMoreResult.reserves[0].paramsHistory), "fetchMoreResult paramsHistory expected to be an array");
+    //                 invariant(isArray(fetchMoreResult.reserves[0].paramsHistory), "fetchMoreResult paramsHistory expected to be an array");
 
-                    return {
-                        reserves: [
-                            {
-                                paramsHistory: [
-                                    ...prev.reserves[0].paramsHistory,
-                                    ...fetchMoreResult.reserves[0].paramsHistory,
-                                ]
-                            }
-                        ]
-                    };
-                }
-            });
-        }
+    //                 const retval = {
+    //                     ...prev,
+    //                     reserves: [
+    //                         {
+    //                             paramsHistory: [
+    //                                 ...(prev.reserves[0].paramsHistory || []),
+    //                                 ...fetchMoreResult.reserves[0].paramsHistory,
+    //                             ]
+    //                         }
+    //                     ]
+    //                 };
+    //                 console.log('data retval', JSON.parse(JSON.stringify(retval)));
+    //                 return retval;
+    //             }
+    //         });
+    //     }
 
-        return () => {
-            keepScanning = false;
-        }
-    }, [data]);
+    //     return () => {
+    //         keepScanning = false;
+    //         console.log("data useEffect exunt");
+    //     }
+    // }, [data]);
 
     // const graphData = useMemo(() => {
     //     const paramsHistory = data?.reserves?.[0]?.paramsHistory;
@@ -117,54 +128,64 @@ const Graph = ({asset, deposit, borrowAsset, graphType, currencySelectedOption})
             timestamp_lte: now,
             first: 1000
         },
+        //fetchPolicy: 'no-cache',
     });
 
-    useEffect(() => {
-        if (!dataVB)
-            return;
+    // useEffect(() => {
+    //     if (!dataVB)
+    //         return;
 
-        let keepScanningVB = true;
+    //     let keepScanningVB = true;
 
-        if (keepScanningVB){
-            // debugger;
-            const maxTimestampVB = Math.max(...dataVB.reserves[0].paramsHistory.map(({ timestamp }) => timestamp));
-            fetchMoreVB({
-                variables: {
-                    timestamp_gt: maxTimestampVB
-                },
-                updateQuery: (prev, { fetchMoreResult }) => {
-                    if (!fetchMoreResult) {
-                        return prev;
-                    }
+    //     console.log('dataVB', JSON.parse(JSON.stringify(dataVB)));
+    //     console.log("keepScanningVB?", keepScanningVB);
+    //     if (keepScanningVB){
+    //         // debugger;
+    //         const maxTimestampVB = Math.max(...dataVB.reserves[0].paramsHistory.map(({ timestamp }) => timestamp));
+    //         fetchMoreVB({
+    //             variables: {
+    //                 timestamp_gt: maxTimestampVB
+    //             },
+    //             updateQuery: (prev, { fetchMoreResult }) => {
+    //                 console.log("borrow query prev", prev);
+    //                 if (!fetchMoreResult) {
+    //                     return prev;
+    //                 }
 
-                    if (!fetchMoreResult.reserves[0].paramsHistory.length) {
-                        keepScanningVB = false;
-                        return prev;
-                    }
+    //                 if (!fetchMoreResult.reserves[0].paramsHistory.length) {
+    //                     keepScanningVB = false;
+    //                     return prev;
+    //                 }
 
-                    invariant(isArray(prev.reserves[0].paramsHistory), "prev paramsHistory expected to be an array");
-                    invariant(isArray(fetchMoreResult.reserves[0].paramsHistory), "fetchMoreResult paramsHistory expected to be an array");
+    //                 invariant(isArray(fetchMoreResult.reserves[0].paramsHistory), "fetchMoreResult paramsHistory expected to be an array");
 
-                    return {
-                        reserves: [
-                            {
-                                paramsHistory: [
-                                    ...prev.reserves[0].paramsHistory,
-                                    ...fetchMoreResult.reserves[0].paramsHistory,
-                                ]
-                            }
-                        ]
-                    };
-                }
-            });
-        }
+    //                 const retval = {
+    //                     ...prev,
+        //                 reserves: [
+        //                     {
+        //                         paramsHistory: [
+        //                             ...(prev.reserves[0].paramsHistory || []),
+        //                             ...fetchMoreResult.reserves[0].paramsHistory,
+        //                         ]
+        //                     }
+        //                 ]
+        //             };
 
-        return () => {
-            keepScanningVB = false;
-        }
-    }, [dataVB]);
+        //             console.log('dataVB retval', JSON.parse(JSON.stringify(retval)));
+        //             return retval;
+        //         }
+        //     });
+        // }
 
-    if (loading || loadingVB)
+    //     return () => {
+    //         keepScanningVB = false;
+    //         console.log("dataVB useEffect exunt");
+    //     }
+    // }, [dataVB]);
+
+    if (loading)
+        return 'Loading...';
+    if (loadingVB)
         return 'Loading...';
     if (error)
         return `Error! ${error.message}`;
@@ -172,18 +193,32 @@ const Graph = ({asset, deposit, borrowAsset, graphType, currencySelectedOption})
         return `Error! ${errorVB.message}`;
 
     console.log("Rendering with dataVB.reserves[0].paramsHistory.length", data.reserves[0].paramsHistory.length);
+
+    //console.log("rendering with data", JSON.parse(JSON.stringify(data)), "dataVB", JSON.parse(JSON.stringify(dataVB)));
     
     const graphData = formatGraphData(data.reserves[0].paramsHistory, deposit);
-    console.log("Graph Data:", graphData.slice(0, 300));
+    const graphDataVariableBorrow = formatGraphDataVariableBorrowed(dataVB.reserves[0].paramsHistory, borrowAmount);
+    console.log("graphDataVariableBorrow:", graphDataVariableBorrow);
+
+    console.log("Graph Data:", graphData);
+
+    const mergedData = [
+        ...graphData,
+        ...graphDataVariableBorrow,
+    ];
+    console.log("Merged Data", mergedData);
 
     let options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour12: false};
-    if (graphType === "interest")
+    if (graphType === "interest") {
+        console.log("here", graphDataVariableBorrow[graphDataVariableBorrow.length - 1].OwedInterestUsd);
+        setInterstOwed(graphDataVariableBorrow[graphDataVariableBorrow.length-1].OwedInterestUsd);
+        setInterstEarned(graphData[graphData.length-1].InterestUsd);
         return (
             <ResponsiveContainer width="100%" height="85%">
-                <AreaChart
-                    data={graphData}
+                <ComposedChart
+                    padding={{top:0}}
                     margin={{
-                    top: 20, right: 30, left: 30, bottom: 20,
+                    top: 0, right: 30, left: 30, bottom: 30,
                     }}
                 >
                     <CartesianGrid strokeDasharray="3 3" />
@@ -201,7 +236,7 @@ const Graph = ({asset, deposit, borrowAsset, graphType, currencySelectedOption})
                         tickCount={9}
                         angle={-30}
                         interval="preserveStartEnd"
-                        tickFormatter = {(unixTime) => new Date(unixTime*1000).toLocaleDateString()}
+                        tickFormatter = {(unixTime) => new Date(unixTime*1000).toLocaleDateString("default", { month: 'short', day: "numeric" })}
                         dataKey="day"
                         />
                     <YAxis 
@@ -210,18 +245,20 @@ const Graph = ({asset, deposit, borrowAsset, graphType, currencySelectedOption})
                     <Tooltip 
                         labelFormatter={(unixTime) => new Date(unixTime*1000).toLocaleString('en-US')}
                         formatter={
-                            (value, name, props) => ( 
+                            (value,) => ( 
                                 [
                                     currencySelectedOption == "native" ? value.toFixed(3).toString().concat(" ", asset):"$".concat(value.toFixed(2).toString()), 
-                                    "Interest", 
-                                ] 
+                                ]
                             )
                         }
                     />
-                    <Area type="monotone" dataKey={currencySelectedOption == "native" ?  "Interest":"InterestUsd"} stackId="1" stroke="#B6509E"  fill="url(#colorUv)" />
-                </AreaChart>
+                    <Legend verticalAlign="top" height={36} />
+                    <Line type="monotone" data={graphData} dataKey={currencySelectedOption == "native" ?  "Interest":"InterestUsd"} name="Earned Interest" stackId="1" fill="#B6509E" stroke="#B6509E" />
+                    <Line type="monotone" data={graphDataVariableBorrow} dataKey={currencySelectedOption == "native" ?  "OwedInterest":"OwedInterestUsd"} name="Owed Interest" stackId="1" stroke="#2EBAC6" fill="#2EBAC6" />
+                </ComposedChart>
             </ResponsiveContainer>
         );
+    }
     else
         return (
             <ResponsiveContainer width="100%" height="85%">
@@ -255,5 +292,7 @@ const Graph = ({asset, deposit, borrowAsset, graphType, currencySelectedOption})
         );
 }
 //<Area type="monotone" dataKey="Principle" stackId="1" stroke="#8884d8" fill="#B6509E" /> fill="#2EBAC6"
+{/* <Area type="monotone" dataKey={currencySelectedOption == "native" ?  "Interest":"InterestUsd"} stackId="1" stroke="#B6509E"  fill="#B6509E" />
+                    <Area type="monotone" dataKey={currencySelectedOption == "native" ?  "OwedInterest":"OwedInterestUsd"} stackId="1" stroke="#B6509E"  fill="#2EBAC6" /> */}
 
 export default Graph;

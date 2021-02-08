@@ -68,7 +68,15 @@ function App() {
               {radioSelectedOption == "rate" &&
                 <h4>Historical Rate Over the Last 30 Days</h4>
               }
-              <Graph asset={asset} deposit={deposit} borrowAsset={borrowAsset} graphType={radioSelectedOption} currencySelectedOption={currencySelectedOption}/>
+              <Graph asset={asset} 
+                deposit={deposit} 
+                borrowAsset={borrowAsset} 
+                borrowAmount={borrowed} 
+                graphType={radioSelectedOption} 
+                currencySelectedOption={currencySelectedOption}
+                setInterstOwed={setInterstOwed}
+                setInterstEarned={setInterstEarned}
+                />
             </div>
           </div>
           <div class="container-fluid col-3 stats">

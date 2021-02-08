@@ -5,16 +5,21 @@ const GET_ASSET_SYMBOLS = gql`
   query GetAssetSymbols {
     reserves (where: {isActive: true}, orderBy: symbol) {
         symbol
+        usageAsCollateralEnabled
+        borrowingEnabled
+        availableLiquidity
     }
 }
 `;
 
-function SelectDepositAsset({ onChange, value }) {
+function SelectDepositAsset({ onChange, value, depositAssetAsCollatoral, setDepositAssetAsCollatoral }) {
     const { loading, error, data } = useQuery(GET_ASSET_SYMBOLS);
 
     function handleChange(e) {
-        console.log("Asset Selected!!");
+        console.log("Asset Selected!!")
         onChange?.(e.target.value);
+        // onChange?.(JSON.parse(e.target.value).symbol);
+        // setDepositAssetAsCollatoral?.(JSON.parse(e.target.value).collateral);
     }
 
     if (loading)
@@ -26,7 +31,9 @@ function SelectDepositAsset({ onChange, value }) {
         <form class="form-floating">
         <select id="floatingSelectValue" class="form-select form-select-sm mb-3" onChange={handleChange} value={value}>
             {data.reserves.map((reserve, i) => (
-                <option key={reserve.symbol} value={reserve.symbol}>{reserve.symbol}</option>
+                <option key={reserve.symbol} value={reserve.symbol}>
+                    {reserve.symbol}
+                </option>
             ))}
         </select>
         <label for="floatingSelectValue">Deposit Asset</label>
