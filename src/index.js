@@ -20,7 +20,25 @@ const httpLink = createHttpLink({
 // 3
 const client = new ApolloClient({
   link: httpLink,
-  cache: new InMemoryCache()
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          paramsHistory: {
+            // Don't cache separate results based on
+            // any of this field's arguments.
+            keyArgs: false,
+            // Concatenate the incoming list items with
+            // the existing list items.
+            merge(existing = [], incoming) {
+              console.log("MERGING");
+              return [...existing, ...incoming];
+            },
+          }
+        }
+      }
+    }
+  })
 });
 
 // 4

@@ -60,9 +60,24 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
             timestamp_gt: daysAgo30,
             timestamp_lte: now,
             first: 1000
-        },
+        }
         //fetchPolicy: 'no-cache',
     });
+
+    useEffect(() => {
+        if (!data)
+            return;
+        
+        console.log("in UseEffect");
+        if (!data.reserves[0].paramsHistory.length){
+            const maxTimestamp = Math.max(...data.reserves[0].paramsHistory.map(({ timestamp }) => timestamp));
+            fetchMore({
+                variables: {
+                    timestamp_gt: maxTimestamp
+                },
+            });
+        }
+    }, [data]);
 
     // useEffect(() => {
     //     if (!data)
@@ -198,15 +213,15 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
     
     const graphData = formatGraphData(data.reserves[0].paramsHistory, deposit);
     const graphDataVariableBorrow = formatGraphDataVariableBorrowed(dataVB.reserves[0].paramsHistory, borrowAmount);
-    console.log("graphDataVariableBorrow:", graphDataVariableBorrow);
+    //console.log("graphDataVariableBorrow:", graphDataVariableBorrow);
 
-    console.log("Graph Data:", graphData);
+    //console.log("Graph Data:", graphData);
 
     const mergedData = [
         ...graphData,
         ...graphDataVariableBorrow,
     ];
-    console.log("Merged Data", mergedData);
+    //console.log("Merged Data", mergedData);
 
     let options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour12: false};
     if (graphType === "interest") {
