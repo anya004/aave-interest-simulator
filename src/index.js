@@ -24,15 +24,26 @@ const client = new ApolloClient({
     typePolicies: {
       Query: {
         fields: {
+          reserves: {
+            keyArgs: ["where", ["symbol"], "orderBy"],
+          }
+        }
+      },
+      Reserve: {
+        fields: {
           paramsHistory: {
             // Don't cache separate results based on
             // any of this field's arguments.
-            keyArgs: false,
+            keyArgs: ["first", "orderDirection", "orderBy", "where", ["timestamp_lte"]],
             // Concatenate the incoming list items with
             // the existing list items.
-            merge(existing = [], incoming) {
+            merge(existing, incoming, { args }) {
               console.log("MERGING");
-              return [...existing, ...incoming];
+              console.log("Merging args: ",args);
+              console.log("Incoming length:", incoming.length);
+              if (!incoming.length)
+                return existing;
+              return existing ? [...existing, ...incoming] : incoming;
             },
           }
         }

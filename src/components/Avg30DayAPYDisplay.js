@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import {formatAsPercent, getAverageRate} from '../helpers.js';
 
-const GET_CURRENT_ASSET_DATA_FOR_AVG_APY_30_DAYS = gql`
-  query ReservesRatesCurrent($symbol: String!, $timestamp_gte:Int) {
+const GET_ASSET_DATA_FOR_AVG_APY_30_DAYS = gql`
+  query GetAssetDataForAvgAPY30Days($symbol: String!, $timestamp_gte:Int) {
       reserves(where: {symbol: $symbol}) {
           id
           pool
           symbol
           lastUpdateTimestamp
           liquidityIndex
-          paramsHistory(where: {timestamp_gte: $timestamp_gte}, first: 1, orderBy: timestamp, orderDirection: asc) {
+          paramsHistory(where: {timestamp_gte: $timestamp_gte}, first: 1, orderBy: timestamp,  orderBy: liquidityIndex, orderDirection: asc) {
             liquidityIndex
             timestamp
         }
@@ -21,7 +21,7 @@ const GET_CURRENT_ASSET_DATA_FOR_AVG_APY_30_DAYS = gql`
 function Avg30DayAPYDisplay ({ asset }) {
     const [daysAgo30] = useState(Math.round((Date.now()-(30*24*60*60*1000)) / 1000));
 
-    const { loading, error, data } = useQuery(GET_CURRENT_ASSET_DATA_FOR_AVG_APY_30_DAYS, {
+    const { loading, error, data } = useQuery(GET_ASSET_DATA_FOR_AVG_APY_30_DAYS, {
         variables: {symbol: asset, timestamp_gte: daysAgo30},
         pollInterval: 60000,
     });
