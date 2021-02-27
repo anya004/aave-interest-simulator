@@ -2,11 +2,6 @@ import { useQuery } from '@apollo/client';
 import { useEffect, useMemo } from 'react';
 
 function useParamsHistoryData(query, symbol, timestampMax, timestampMin) {
-  const debugQueryName = useMemo(() => query.definitions[0]?.name?.value, [
-    query,
-  ]);
-
-  console.log(debugQueryName, 'BEGIN useParamsHistoryData');
   const queryResult = useQuery(query, {
     variables: {
       symbol,
@@ -16,8 +11,7 @@ function useParamsHistoryData(query, symbol, timestampMax, timestampMin) {
     },
   });
 
-  const { loading, data, fetchMore } = queryResult;
-
+  const { data, fetchMore } = queryResult;
   const paramsHistory = data?.reserves?.[0]?.paramsHistory;
 
   const maxLoadedTimestamp = useMemo(
@@ -28,28 +22,18 @@ function useParamsHistoryData(query, symbol, timestampMax, timestampMin) {
     [paramsHistory]
   );
 
-  console.log(debugQueryName, {
-    loading,
-    maxLoadedTimestamp,
-    data,
-    paramsHistory,
-  });
-
   useEffect(() => {
-    console.log(debugQueryName, 'run useEffect, ', { maxLoadedTimestamp });
     if (!maxLoadedTimestamp) return;
 
     (async function () {
-      console.log(debugQueryName, 'run fetchMore! w/', { maxLoadedTimestamp });
       fetchMore({
         variables: {
           timestamp_gt: maxLoadedTimestamp,
         },
       });
     })();
-  }, [maxLoadedTimestamp, fetchMore, debugQueryName]);
+  }, [maxLoadedTimestamp, fetchMore]);
 
-  console.log(debugQueryName, 'END useParamsHistoryData');
   return queryResult;
 }
 
