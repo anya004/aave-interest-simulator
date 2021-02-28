@@ -54,22 +54,22 @@ const GET_HISTORICAL_ASSET_DATA_FOR_VARIABLE_RATE = gql`
 
 
 
-const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySelectedOption, setInterstOwed, setInterstEarned}) => {
+const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySelectedOption, setInterestOwed, setInterestEarned}) => {
     const [now] = useState(Math.round(Date.now() / 1000));
     const [daysAgo30] = useState(Math.round((Date.now()-(30*24*60*60*1000)) / 1000));
     console.log("now:", now);
     console.log("daysAgo30:", daysAgo30);
 
     //DEPOSIT APY
-    const { loading, networkStatus, error, data, previousData, fetchMore } = useQuery(GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY, {
-        variables: {
-            symbol: asset,
-            timestamp_gt: daysAgo30,
-            timestamp_lte: now,
-            first: 1000
-        },
-        fetchPolicy: 'cache-and-network',
-    });
+    // const { loading, networkStatus, error, data, previousData, fetchMore } = useQuery(GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY, {
+    //     variables: {
+    //         symbol: asset,
+    //         timestamp_gt: daysAgo30,
+    //         timestamp_lte: now,
+    //         first: 1000
+    //     },
+    //     fetchPolicy: 'cache-and-network',
+    // });
 
     const {
         data: dataAvg,
@@ -88,7 +88,7 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
         error: errorBor,
       } = useParamsHistoryData(
         GET_HISTORICAL_ASSET_DATA_FOR_VARIABLE_RATE,
-        asset,
+        borrowAsset,
         now,
         daysAgo30
       );
@@ -122,9 +122,9 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
     let options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour12: false};
     if (graphType === "interest") {
         //console.log("here", graphDataVariableBorrow[graphDataVariableBorrow.length - 1].OwedInterestUsd);
-        //setInterstOwed(graphDataVariableBorrow[graphDataVariableBorrow.length-1].OwedInterestUsd);
+        setInterestOwed(graphDataVariableBorrow[graphDataVariableBorrow.length-1].OwedInterestUsd);
         console.log("Setting InterestUsd state in graph with: ", graphData[graphData.length-1].InterestUsd)
-        //setInterstEarned(graphData[graphData.length-1].InterestUsd);
+        setInterestEarned(graphData[graphData.length-1].InterestUsd);
         return (
             <>
             <ResponsiveContainer width="100%" height="85%">

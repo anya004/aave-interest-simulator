@@ -24,8 +24,8 @@ function App() {
   const [borrowed, setBorrowed] = useState(0);
   const [radioSelectedOption, setRadioSelectedOption] = useState("interest");
   const [currencySelectedOption, setCurrencySelectedOption] = useState("native");
-  const [interestEarned, setInterstEarned] = useState(0);
-  const [interestOwed, setInterstOwed] = useState(0);
+  const [interestEarned, setInterestEarned] = useState(0);
+  const [interestOwed, setInterestOwed] = useState(0);
 
   return (
     <div className="App">
@@ -74,8 +74,8 @@ function App() {
                 borrowAmount={borrowed} 
                 graphType={radioSelectedOption} 
                 currencySelectedOption={currencySelectedOption}
-                setInterstOwed={setInterstOwed}
-                setInterstEarned={setInterstEarned}
+                setInterestOwed={setInterestOwed}
+                setInterestEarned={setInterestEarned}
                 />
             </div>
           </div>
