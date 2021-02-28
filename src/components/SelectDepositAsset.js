@@ -7,7 +7,6 @@ const GET_ASSET_SYMBOLS = gql`
         symbol
         usageAsCollateralEnabled
         borrowingEnabled
-        availableLiquidity
     }
 }
 `;
@@ -29,14 +28,14 @@ function SelectDepositAsset({ onChange, value, depositAssetAsCollatoral, setDepo
     
     return (
         <form class="form-floating">
-        <select id="floatingSelectValue" class="form-select form-select-sm mb-3" onChange={handleChange} value={value}>
+        <select id="floatingSelectDepositValue" class="form-select form-select-sm mb-3" onChange={handleChange} value={value}>
             {data.reserves.map((reserve, i) => (
                 <option key={reserve.symbol} value={reserve.symbol}>
                     {reserve.symbol}
                 </option>
             ))}
         </select>
-        <label for="floatingSelectValue">Deposit Asset</label>
+        <label for="floatingSelectDepositValue">Deposit Asset</label>
         </form>
     );
 }

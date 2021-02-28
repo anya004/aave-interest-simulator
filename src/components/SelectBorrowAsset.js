@@ -10,7 +10,9 @@ const GET_BORROWABLE_ASSET_SYMBOLS = gql`
 `;
 
 function SelectBorrowAsset({ onChange, value }) {
-    const { loading, error, data } = useQuery(GET_BORROWABLE_ASSET_SYMBOLS);
+    const { loading, error, data } = useQuery(GET_BORROWABLE_ASSET_SYMBOLS, {
+        fetchPolicy: "network-only"
+      });
 
     function handleChange(e) {
         console.log("Borrow Asset Selected!!");
@@ -24,12 +26,14 @@ function SelectBorrowAsset({ onChange, value }) {
     
     return (
         <form class="form-floating">
-        <select id="floatingSelectValue" class="form-select form-select-sm mb-3" onChange={handleChange} value={value}>
+        <select id="floatingSelectBorrowValue" class="form-select form-select-sm mb-3" onChange={handleChange} value={value}>
             {data.reserves.map((reserve, i) => (
-                <option key={reserve.symbol} value={reserve.symbol}>{reserve.symbol}</option>
+                <option key={reserve.symbol} value={reserve.symbol}>
+                    {reserve.symbol}
+                </option>
             ))}
         </select>
-        <label for="floatingSelectValue">Borrow Asset</label>
+        <label for="floatingSelectBorrowValue">Borrow Asset</label>
         </form>
     );
 }

@@ -1,7 +1,8 @@
 import { invariant } from 'ts-invariant';
 import { cloneDeep, isArray } from 'lodash';
-import React, { useState, useEffect } from 'react';
-import { gql, useQuery, useMemo } from '@apollo/client';
+import React, { useState, useMemo, useEffect } from 'react';
+import { gql, useQuery } from '@apollo/client';
+import { useParamsHistoryData } from '../hooks/useParamsHistoryData';
 import { getAverageRate, formatGraphData , formatGraphDataVariableBorrowed} from '../helpers.js';
 import {
     AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ComposedChart, Tooltip, Legend
@@ -23,6 +24,7 @@ const GET_CURRENT_ASSET_DATA_FOR_AVG_APY = gql`
 const GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY = gql`
     query ReservesRatesHistory($timestamp_gt: Int, $timestamp_lte: Int, $symbol: String!, $first: Int) {
         reserves(where: {symbol: $symbol}) {
+            id
             symbol
             paramsHistory(where: {timestamp_gt: $timestamp_gt, timestamp_lte: $timestamp_lte}, first: $first, orderBy: timestamp, orderDirection: asc) {
                 id
@@ -37,6 +39,7 @@ const GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY = gql`
 const GET_HISTORICAL_ASSET_DATA_FOR_VARIABLE_RATE = gql`
     query VBReservesRatesHistory($timestamp_gt: Int, $timestamp_lte: Int, $symbol: String!, $first: Int) {
         reserves(where: {symbol: $symbol}) {
+            id
             symbol
             paramsHistory(where: {timestamp_gt: $timestamp_gt, timestamp_lte: $timestamp_lte}, first: $first, orderBy: timestamp, orderDirection: asc) {
                 id
@@ -49,171 +52,81 @@ const GET_HISTORICAL_ASSET_DATA_FOR_VARIABLE_RATE = gql`
     }  
 `;
 
-const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySelectedOption, setInterstOwed, setInterstEarned}) => {
+
+
+const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySelectedOption, setInterestOwed, setInterestEarned}) => {
     const [now] = useState(Math.round(Date.now() / 1000));
     const [daysAgo30] = useState(Math.round((Date.now()-(30*24*60*60*1000)) / 1000));
+    console.log("now:", now);
+    console.log("daysAgo30:", daysAgo30);
 
     //DEPOSIT APY
-    const { loading, error, data, fetchMore } = useQuery(GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY, {
-        variables: {
-            symbol: asset,
-            timestamp_gt: daysAgo30,
-            timestamp_lte: now,
-            first: 1000
-        },
-        //fetchPolicy: 'no-cache',
-    });
+    // const { loading, networkStatus, error, data, previousData, fetchMore } = useQuery(GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY, {
+    //     variables: {
+    //         symbol: asset,
+    //         timestamp_gt: daysAgo30,
+    //         timestamp_lte: now,
+    //         first: 1000
+    //     },
+    //     fetchPolicy: 'cache-and-network',
+    // });
 
-    // useEffect(() => {
-    //     if (!data)
-    //         return;
-
-    //     let keepScanning = true;
-
-    //     console.log('data', JSON.parse(JSON.stringify(data)));
-    //     if (keepScanning){
-    //         // debugger;
-    //         const maxTimestamp = Math.max(...data.reserves[0].paramsHistory.map(({ timestamp }) => timestamp));
-    //         fetchMore({
-    //             variables: {
-    //                 timestamp_gt: maxTimestamp
-    //             },
-    //             updateQuery: (prev, { fetchMoreResult }) => {
-    //                 console.log("deposit query prev", prev);
-    //                 if (!fetchMoreResult) {
-    //                     return prev;
-    //                 }
-
-    //                 if (!fetchMoreResult.reserves[0].paramsHistory.length) {
-    //                     keepScanning = false;
-    //                     return prev;
-    //                 }
-
-    //                 invariant(isArray(fetchMoreResult.reserves[0].paramsHistory), "fetchMoreResult paramsHistory expected to be an array");
-
-    //                 const retval = {
-    //                     ...prev,
-    //                     reserves: [
-    //                         {
-    //                             paramsHistory: [
-    //                                 ...(prev.reserves[0].paramsHistory || []),
-    //                                 ...fetchMoreResult.reserves[0].paramsHistory,
-    //                             ]
-    //                         }
-    //                     ]
-    //                 };
-    //                 console.log('data retval', JSON.parse(JSON.stringify(retval)));
-    //                 return retval;
-    //             }
-    //         });
-    //     }
-
-    //     return () => {
-    //         keepScanning = false;
-    //         console.log("data useEffect exunt");
-    //     }
-    // }, [data]);
-
-    // const graphData = useMemo(() => {
-    //     const paramsHistory = data?.reserves?.[0]?.paramsHistory;
-    //     if (!paramsHistory) return [];
-    //     return formatGraphData(data.reserves[0].paramsHistory, deposit);
-    // }, [data]);
+    const {
+        data: dataAvg,
+        loading: loadingAvg,
+        error: errorAvg,
+      } = useParamsHistoryData(
+        GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY,
+        asset,
+        now,
+        daysAgo30
+      );
     
-    //VARIABLE BORROW
-    const { data: dataVB, error: errorVB, loading: loadingVB, fetchMore: fetchMoreVB} = useQuery(GET_HISTORICAL_ASSET_DATA_FOR_VARIABLE_RATE, {
-        variables: {
-            symbol: borrowAsset,
-            timestamp_gt: daysAgo30,
-            timestamp_lte: now,
-            first: 1000
-        },
-        //fetchPolicy: 'no-cache',
-    });
+    const {
+        data: dataBor,
+        loading: loadingBor,
+        error: errorBor,
+      } = useParamsHistoryData(
+        GET_HISTORICAL_ASSET_DATA_FOR_VARIABLE_RATE,
+        borrowAsset,
+        now,
+        daysAgo30
+      );
 
-    // useEffect(() => {
-    //     if (!dataVB)
-    //         return;
-
-    //     let keepScanningVB = true;
-
-    //     console.log('dataVB', JSON.parse(JSON.stringify(dataVB)));
-    //     console.log("keepScanningVB?", keepScanningVB);
-    //     if (keepScanningVB){
-    //         // debugger;
-    //         const maxTimestampVB = Math.max(...dataVB.reserves[0].paramsHistory.map(({ timestamp }) => timestamp));
-    //         fetchMoreVB({
-    //             variables: {
-    //                 timestamp_gt: maxTimestampVB
-    //             },
-    //             updateQuery: (prev, { fetchMoreResult }) => {
-    //                 console.log("borrow query prev", prev);
-    //                 if (!fetchMoreResult) {
-    //                     return prev;
-    //                 }
-
-    //                 if (!fetchMoreResult.reserves[0].paramsHistory.length) {
-    //                     keepScanningVB = false;
-    //                     return prev;
-    //                 }
-
-    //                 invariant(isArray(fetchMoreResult.reserves[0].paramsHistory), "fetchMoreResult paramsHistory expected to be an array");
-
-    //                 const retval = {
-    //                     ...prev,
-        //                 reserves: [
-        //                     {
-        //                         paramsHistory: [
-        //                             ...(prev.reserves[0].paramsHistory || []),
-        //                             ...fetchMoreResult.reserves[0].paramsHistory,
-        //                         ]
-        //                     }
-        //                 ]
-        //             };
-
-        //             console.log('dataVB retval', JSON.parse(JSON.stringify(retval)));
-        //             return retval;
-        //         }
-        //     });
-        // }
-
-    //     return () => {
-    //         keepScanningVB = false;
-    //         console.log("dataVB useEffect exunt");
-    //     }
-    // }, [dataVB]);
-
-    if (loading)
-        return 'Loading...';
-    if (loadingVB)
-        return 'Loading...';
-    if (error)
-        return `Error! ${error.message}`;
-    if (errorVB)
-        return `Error! ${errorVB.message}`;
-
-    console.log("Rendering with dataVB.reserves[0].paramsHistory.length", data.reserves[0].paramsHistory.length);
-
-    //console.log("rendering with data", JSON.parse(JSON.stringify(data)), "dataVB", JSON.parse(JSON.stringify(dataVB)));
     
-    const graphData = formatGraphData(data.reserves[0].paramsHistory, deposit);
-    const graphDataVariableBorrow = formatGraphDataVariableBorrowed(dataVB.reserves[0].paramsHistory, borrowAmount);
-    console.log("graphDataVariableBorrow:", graphDataVariableBorrow);
+    if (loadingAvg)
+        return 'Loading...';
+    if (loadingBor)
+        return 'Loading...';
+    if (errorAvg)
+        return `Error! ${errorAvg.message}`;
+    if (errorBor)
+        return `Error! ${errorBor.message}`;
 
-    console.log("Graph Data:", graphData);
+    console.log("Rendering with fetchedData.reserves[0].paramsHistory.length", dataAvg.reserves[0].paramsHistory.length, dataAvg.reserves[0].paramsHistory.slice(-1)[0].id);
 
-    const mergedData = [
-        ...graphData,
-        ...graphDataVariableBorrow,
-    ];
-    console.log("Merged Data", mergedData);
+    // console.log("rendering with data", JSON.parse(JSON.stringify(data)), "dataVB", JSON.parse(JSON.stringify(dataVB)));
+    
+    const graphData = formatGraphData(dataAvg.reserves[0].paramsHistory, deposit);
+    const graphDataVariableBorrow = formatGraphDataVariableBorrowed(dataBor.reserves[0].paramsHistory, borrowAmount);
+    //console.log("graphDataVariableBorrow:", graphDataVariableBorrow);
+
+    //console.log("Graph Data:", graphData);
+
+    // const mergedData = [
+    //     ...graphData,
+    //     ...graphDataVariableBorrow,
+    // ];
+    //console.log("Merged Data", mergedData);
 
     let options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour12: false};
     if (graphType === "interest") {
-        console.log("here", graphDataVariableBorrow[graphDataVariableBorrow.length - 1].OwedInterestUsd);
-        setInterstOwed(graphDataVariableBorrow[graphDataVariableBorrow.length-1].OwedInterestUsd);
-        setInterstEarned(graphData[graphData.length-1].InterestUsd);
+        //console.log("here", graphDataVariableBorrow[graphDataVariableBorrow.length - 1].OwedInterestUsd);
+        setInterestOwed(graphDataVariableBorrow[graphDataVariableBorrow.length-1].OwedInterestUsd);
+        console.log("Setting InterestUsd state in graph with: ", graphData[graphData.length-1].InterestUsd)
+        setInterestEarned(graphData[graphData.length-1].InterestUsd);
         return (
+            <>
             <ResponsiveContainer width="100%" height="85%">
                 <ComposedChart
                     padding={{top:0}}
@@ -240,23 +153,24 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
                         dataKey="day"
                         />
                     <YAxis 
-                        label={{ value: currencySelectedOption == "native" ?  asset:"USD", angle: -90, position: 'insideLeft'}}
+                        label={{ value: currencySelectedOption === "native" ?  asset:"USD", angle: -90, position: 'insideLeft'}}
                     />
                     <Tooltip 
                         labelFormatter={(unixTime) => new Date(unixTime*1000).toLocaleString('en-US')}
                         formatter={
                             (value,) => ( 
                                 [
-                                    currencySelectedOption == "native" ? value.toFixed(3).toString().concat(" ", asset):"$".concat(value.toFixed(2).toString()), 
+                                    currencySelectedOption === "native" ? value.toFixed(3).toString().concat(" ", asset):"$".concat(value.toFixed(2).toString()), 
                                 ]
                             )
                         }
                     />
                     <Legend verticalAlign="top" height={36} />
-                    <Line type="monotone" data={graphData} dataKey={currencySelectedOption == "native" ?  "Interest":"InterestUsd"} name="Earned Interest" stackId="1" fill="#B6509E" stroke="#B6509E" />
+                    <Line type="monotone" data={graphData} dataKey={currencySelectedOption === "native" ?  "Interest":"InterestUsd"} name="Earned Interest" stackId="1" fill="#B6509E" stroke="#B6509E" />
                     <Line type="monotone" data={graphDataVariableBorrow} dataKey={currencySelectedOption == "native" ?  "OwedInterest":"OwedInterestUsd"} name="Owed Interest" stackId="1" stroke="#2EBAC6" fill="#2EBAC6" />
                 </ComposedChart>
             </ResponsiveContainer>
+            </>
         );
     }
     else
