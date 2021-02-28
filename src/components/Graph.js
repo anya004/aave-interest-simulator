@@ -1,25 +1,23 @@
-import { invariant } from 'ts-invariant';
-import { cloneDeep, isArray } from 'lodash';
-import React, { useState, useMemo, useEffect } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import React, { useState } from 'react';
+import { gql } from '@apollo/client';
 import { useParamsHistoryData } from '../hooks/useParamsHistoryData';
-import { getAverageRate, formatGraphData , formatGraphDataVariableBorrowed} from '../helpers.js';
+import { formatGraphData , formatGraphDataVariableBorrowed} from '../helpers.js';
 import {
-    AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ComposedChart, Tooltip, Legend
+    LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ComposedChart, Tooltip, Legend
   } from 'recharts';
 
-const GET_CURRENT_ASSET_DATA_FOR_AVG_APY = gql`
-  query ReservesRatesCurrent($symbol: String!) {
-      reserves(where: {symbol: $symbol}) {
-          id
-          pool
-          symbol
-          lastUpdateTimestamp
-          liquidityIndex
-          variableBorrowIndex
-      }
-  }  
-`;  
+// const GET_CURRENT_ASSET_DATA_FOR_AVG_APY = gql`
+//   query ReservesRatesCurrent($symbol: String!) {
+//       reserves(where: {symbol: $symbol}) {
+//           id
+//           pool
+//           symbol
+//           lastUpdateTimestamp
+//           liquidityIndex
+//           variableBorrowIndex
+//       }
+//   }  
+// `;  
 
 const GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY = gql`
     query ReservesRatesHistory($timestamp_gt: Int, $timestamp_lte: Int, $symbol: String!, $first: Int) {
@@ -109,17 +107,8 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
     
     const graphData = formatGraphData(dataAvg.reserves[0].paramsHistory, deposit);
     const graphDataVariableBorrow = formatGraphDataVariableBorrowed(dataBor.reserves[0].paramsHistory, borrowAmount);
-    //console.log("graphDataVariableBorrow:", graphDataVariableBorrow);
 
-    //console.log("Graph Data:", graphData);
-
-    // const mergedData = [
-    //     ...graphData,
-    //     ...graphDataVariableBorrow,
-    // ];
-    //console.log("Merged Data", mergedData);
-
-    let options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour12: false};
+    //let options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour12: false};
     if (graphType === "interest") {
         //console.log("here", graphDataVariableBorrow[graphDataVariableBorrow.length - 1].OwedInterestUsd);
         setInterestOwed(graphDataVariableBorrow[graphDataVariableBorrow.length-1].OwedInterestUsd);
@@ -167,7 +156,7 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
                     />
                     <Legend verticalAlign="top" height={36} />
                     <Line type="monotone" data={graphData} dataKey={currencySelectedOption === "native" ?  "Interest":"InterestUsd"} name="Earned Interest" stackId="1" fill="#B6509E" stroke="#B6509E" />
-                    <Line type="monotone" data={graphDataVariableBorrow} dataKey={currencySelectedOption == "native" ?  "OwedInterest":"OwedInterestUsd"} name="Owed Interest" stackId="1" stroke="#2EBAC6" fill="#2EBAC6" />
+                    <Line type="monotone" data={graphDataVariableBorrow} dataKey={currencySelectedOption === "native" ?  "OwedInterest":"OwedInterestUsd"} name="Owed Interest" stackId="1" stroke="#2EBAC6" fill="#2EBAC6" />
                 </ComposedChart>
             </ResponsiveContainer>
             </>
@@ -205,8 +194,5 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
             </ResponsiveContainer>
         );
 }
-//<Area type="monotone" dataKey="Principle" stackId="1" stroke="#8884d8" fill="#B6509E" /> fill="#2EBAC6"
-{/* <Area type="monotone" dataKey={currencySelectedOption == "native" ?  "Interest":"InterestUsd"} stackId="1" stroke="#B6509E"  fill="#B6509E" />
-                    <Area type="monotone" dataKey={currencySelectedOption == "native" ?  "OwedInterest":"OwedInterestUsd"} stackId="1" stroke="#B6509E"  fill="#2EBAC6" /> */}
 
 export default Graph;

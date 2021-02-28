@@ -1,7 +1,6 @@
 import './../styles/App.css';
 import React, { useState } from 'react';
 import Header from './Header.js';
-import List from './List.js';
 import SelectDepositAsset from './SelectDepositAsset.js';
 import SelectBorrowAsset from './SelectBorrowAsset.js';
 import DepositAmountTextbox from './DepositAmountTextbox.js';
@@ -62,10 +61,10 @@ function App() {
               </div>
             </div>
             <div class="row Graph">
-              {radioSelectedOption == "interest" &&
+              {radioSelectedOption === "interest" &&
                 <h4>Accumulated Interest Based on Last 30 Days</h4>
               }
-              {radioSelectedOption == "rate" &&
+              {radioSelectedOption === "rate" &&
                 <h4>Historical Rate Over the Last 30 Days</h4>
               }
               <Graph asset={asset} 

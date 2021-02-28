@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import {formatAsPercent, getDecimal} from '../helpers.js';
 

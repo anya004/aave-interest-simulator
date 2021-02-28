@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { gql, useQuery } from '@apollo/client'
 
 const GET_BORROWABLE_ASSET_SYMBOLS = gql`

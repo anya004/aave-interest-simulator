@@ -2,7 +2,6 @@ import { calculateAverageRate } from "@aave/protocol-js";
 import BigNumber from 'bignumber.js';
 import { invariant } from 'ts-invariant';
 import { uniqBy } from 'lodash';
-import { buildClientSchema, parseType } from 'graphql';
 
 export const SAMPLE_DAI =
     {
@@ -514,6 +513,8 @@ export function formatGraphData(paramsHistory, deposit) {
     //get rid of duplicates
     let filtered = uniqBy(paramsHistory, "timestamp");
     console.log("Reduced array from ", paramsHistory.length, " to ", filtered.length);
+
+    
 
     let i;
     for (i = 0; i < filtered.length-1; i++) {
