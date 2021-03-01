@@ -58,17 +58,6 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
     console.log("now:", now);
     console.log("daysAgo30:", daysAgo30);
 
-    //DEPOSIT APY
-    // const { loading, networkStatus, error, data, previousData, fetchMore } = useQuery(GET_HISTORICAL_ASSET_DATA_FOR_AVG_APY, {
-    //     variables: {
-    //         symbol: asset,
-    //         timestamp_gt: daysAgo30,
-    //         timestamp_lte: now,
-    //         first: 1000
-    //     },
-    //     fetchPolicy: 'cache-and-network',
-    // });
-
     const {
         data: dataAvg,
         loading: loadingAvg,

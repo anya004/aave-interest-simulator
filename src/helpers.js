@@ -490,9 +490,20 @@ export function formatAsPercent(decimal) {
     return parseFloat(decimal*100).toFixed(2) + "%"
 }
 
+export function downsampleData(data, targetLength) {
+    if (data.length > targetLength) {
+        let window = (data.length - 1) / (targetLength - 1);  
+        let sampled = [];
+        for (let i=0; i < targetLength ; i++) {
+            sampled[i] = data[Math.round(i*window)]; 
+        }
+        return sampled;
+    }
+    return data;
+}
+
 export function formatGraphData(paramsHistory, deposit) {
     invariant(typeof deposit === "number", "expected deposit to be a number");
-    //let subset = paramsHistory.filter(); //filter to take only 1st entry of the day
     ///call getAverageRate on each pair of items
     let interests  = [];
     let graphData = [];
@@ -514,23 +525,25 @@ export function formatGraphData(paramsHistory, deposit) {
     let filtered = uniqBy(paramsHistory, "timestamp");
     console.log("Reduced array from ", paramsHistory.length, " to ", filtered.length);
 
-    
+    let sampled = downsampleData(filtered, 720); // for graphing purposes
+    console.log("Reduced filtered array from ", filtered.length, " to ", sampled.length);
+    console.log("SampledData:", sampled);
 
     let i;
-    for (i = 0; i < filtered.length-1; i++) {
+    for (i = 0; i < sampled.length-1; i++) {
         const averageRate = getAverageRate(
-            filtered[i].liquidityIndex, 
-            filtered[i+1].liquidityIndex,
-            filtered[i].timestamp, 
-            filtered[i+1].timestamp
+            sampled[i].liquidityIndex, 
+            sampled[i+1].liquidityIndex,
+            sampled[i].timestamp, 
+            sampled[i+1].timestamp
         );
-        const interest = (deposit + interests[i]) * averageRate * (filtered[i+1].timestamp - filtered[i].timestamp) / (365 * 24 * 60 * 60);
+        const interest = (deposit + interests[i]) * averageRate * (sampled[i+1].timestamp - sampled[i].timestamp) / (365 * 24 * 60 * 60);
         interests[i+1] = interests[i]+ interest;
 
-        const interestUsd = interests[i+1] * filtered[i+1].priceInUsd;
+        const interestUsd = interests[i+1] * sampled[i+1].priceInUsd;
 
         graphData[i+1] = {
-            day: filtered[i+1].timestamp, 
+            day: sampled[i+1].timestamp, 
             Principle: deposit,
             Borrowed: null,
             Interest: interests[i+1],
@@ -548,7 +561,6 @@ export function formatGraphData(paramsHistory, deposit) {
 
 export function formatGraphDataVariableBorrowed(paramsHistory, deposit) {
     invariant(typeof deposit === "number", "expected deposit to be a number");
-    //let subset = paramsHistory.filter(); //filter to take only 1st entry of the day
     ///call getAverageRate on each pair of items
     let interests  = [];
     let graphData = [];
@@ -569,22 +581,23 @@ export function formatGraphDataVariableBorrowed(paramsHistory, deposit) {
     //get rid of duplicates
     let filtered = uniqBy(paramsHistory, "timestamp");
     console.log("Reduced array from ", paramsHistory.length, " to ", filtered.length);
+    let sampled = downsampleData(filtered, 720); // for graphing purposes
 
     let i;
-    for (i = 0; i < filtered.length-1; i++) {
+    for (i = 0; i < sampled.length-1; i++) {
         const averageRate = getAverageRate(
-            filtered[i].variableBorrowIndex, 
-            filtered[i+1].variableBorrowIndex,
-            filtered[i].timestamp, 
-            filtered[i+1].timestamp
+            sampled[i].variableBorrowIndex, 
+            sampled[i+1].variableBorrowIndex,
+            sampled[i].timestamp, 
+            sampled[i+1].timestamp
         );
-        const interest = (deposit + interests[i]) * averageRate * (filtered[i+1].timestamp - filtered[i].timestamp) / (365 * 24 * 60 * 60);
+        const interest = (deposit + interests[i]) * averageRate * (sampled[i+1].timestamp - sampled[i].timestamp) / (365 * 24 * 60 * 60);
         interests[i+1] = interests[i]+ interest;
 
-        const interestUsd = interests[i+1] * filtered[i+1].priceInUsd;
+        const interestUsd = interests[i+1] * sampled[i+1].priceInUsd;
 
         graphData[i+1] = {
-            day: filtered[i+1].timestamp, 
+            day: sampled[i+1].timestamp, 
             Principle: null,
             Borrowed: deposit,
             Interest: null,
