@@ -28,7 +28,7 @@ function CurrentBorrowDisplay ({ asset }) {
       <React.Fragment>
         <div class="row">
       <div class="row">
-        <div class="card" style={{height: "5rem"}}>
+        <div class="card" style={{height: "auto"}}>
             <div class="card-body">
                 <h5 class="card-title text-danger">{formatAsPercent(getDecimal(data.reserves[0].variableBorrowRate,27))}
                 </h5>
@@ -39,7 +39,7 @@ function CurrentBorrowDisplay ({ asset }) {
       </div>
       <div class="row">
       <div class="row">
-          <div class="card" style={{height: "5rem"}}>
+          <div class="card" style={{height: "auto"}}>
               <div class="card-body">
                   <h5 class="card-title text-danger">{formatAsPercent(getDecimal(data.reserves[0].stableBorrowRate,27))}
                   </h5>

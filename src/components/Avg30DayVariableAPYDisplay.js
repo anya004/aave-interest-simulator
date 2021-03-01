@@ -33,7 +33,7 @@ function Avg30DayVariableAPYDisplay ({ asset }) {
     
     return (
       <div class="row">
-          <div class="card" style={{height: "5rem"}}>
+          <div class="card" style={{height: "auto"}}>
             <div class="card-body" >
                 
                 <h5 class="text-danger">{ 

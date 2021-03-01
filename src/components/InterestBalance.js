@@ -4,7 +4,7 @@ function InterestBalance ({ interestEarned, interestOwed }) {
     
     return (
       <div class="row">
-          <div class="card" style={{height: "5rem"}}>
+          <div class="card" style={{height: "auto"}}>
             <div class="card-body" >
                 
                 <h5 class={interestEarned>=interestOwed ? "text-success":"text-danger"}>
