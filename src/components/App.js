@@ -22,7 +22,7 @@ function App() {
   const [deposit, setDeposit] = useState(1000);
   const [borrowed, setBorrowed] = useState(0);
   const [radioSelectedOption, setRadioSelectedOption] = useState("interest");
-  const [currencySelectedOption, setCurrencySelectedOption] = useState("native");
+  const [currencySelectedOption, setCurrencySelectedOption] = useState("usd");
   const [interestEarned, setInterestEarned] = useState(0);
   const [interestOwed, setInterestOwed] = useState(0);
 
