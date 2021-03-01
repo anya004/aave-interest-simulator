@@ -90,7 +90,7 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
     if (errorBor)
         return `Error! ${errorBor.message}`;
 
-    console.log("Rendering with fetchedData.reserves[0].paramsHistory.length", dataAvg.reserves[0].paramsHistory.length, dataAvg.reserves[0].paramsHistory.slice(-1)[0].id);
+    //console.log("Rendering with fetchedData.reserves[0].paramsHistory.length", dataAvg.reserves[0].paramsHistory.length, dataAvg.reserves[0].paramsHistory.slice(-1)[0].id);
 
     // console.log("rendering with data", JSON.parse(JSON.stringify(data)), "dataVB", JSON.parse(JSON.stringify(dataVB)));
     
@@ -178,7 +178,8 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
                     <Tooltip 
                         labelFormatter={(unixTime) => new Date(unixTime*1000).toLocaleString('en-US')}
                     />
-                    <Line type="monotone" dataKey="Rate" stackId="1" stroke="#B6509E" fill="#2EBAC6" />
+                    <Legend verticalAlign="top" height={36} />
+                    <Line type="monotone" dataKey="DepositRate" name="Deposit Rate" stackId="1" stroke="#B6509E" fill="#2EBAC6" />
                 </LineChart>
             </ResponsiveContainer>
         );

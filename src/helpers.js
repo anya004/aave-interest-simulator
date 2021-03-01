@@ -518,16 +518,12 @@ export function formatGraphData(paramsHistory, deposit) {
         InterestUsd: interests[0],
         OwedInterest: null,
         OwedInterestUsd: null,
-        Rate: formatAsPercent(0),
-        RateBorrowed: null
+        DepositRate: formatAsPercent(0),
+        BorrowRate: null
     }
     //get rid of duplicates
     let filtered = uniqBy(paramsHistory, "timestamp");
-    console.log("Reduced array from ", paramsHistory.length, " to ", filtered.length);
-
     let sampled = downsampleData(filtered, 720); // for graphing purposes
-    console.log("Reduced filtered array from ", filtered.length, " to ", sampled.length);
-    console.log("SampledData:", sampled);
 
     let i;
     for (i = 0; i < sampled.length-1; i++) {
@@ -550,8 +546,8 @@ export function formatGraphData(paramsHistory, deposit) {
             InterestUsd: interestUsd,
             OwedInterest: null,
             OwedInterestUsd: null,
-            Rate: parseFloat(averageRate*100).toFixed(2),
-            RateBorrowed: null
+            DepositRate: parseFloat(averageRate*100).toFixed(2),
+            BorrowRate: null
         }
     }
 
@@ -575,12 +571,11 @@ export function formatGraphDataVariableBorrowed(paramsHistory, deposit) {
         InterestUsd: null,
         OwedInterest: interests[0],
         OwedInterestUsd: interests[0],
-        Rate: null,
-        RateBorrowed: formatAsPercent(0),
+        DepositRate: null,
+        BorrowRate: formatAsPercent(0),
     }
     //get rid of duplicates
     let filtered = uniqBy(paramsHistory, "timestamp");
-    console.log("Reduced array from ", paramsHistory.length, " to ", filtered.length);
     let sampled = downsampleData(filtered, 720); // for graphing purposes
 
     let i;
@@ -604,8 +599,8 @@ export function formatGraphDataVariableBorrowed(paramsHistory, deposit) {
             InterestUsd: null,
             OwedInterest: interests[i+1],
             OwedInterestUsd: interestUsd,
-            Rate: null,
-            RateBorrowed: parseFloat(averageRate*100).toFixed(2),
+            DepositRate: null,
+            BorrowRate: parseFloat(averageRate*100).toFixed(2),
         }
     }
 
