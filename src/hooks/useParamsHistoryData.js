@@ -9,6 +9,7 @@ function useParamsHistoryData(query, symbol, timestampMax, timestampMin) {
       timestamp_lte: timestampMax,
       first: 1000,
     },
+    notifyOnNetworkStatusChange: true,
   });
 
   const { data, fetchMore } = queryResult;
