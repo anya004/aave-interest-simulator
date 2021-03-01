@@ -9,8 +9,8 @@ function BorrowAmountTextbox({ onChange, value }) {
     
     return (
         <form class="form-floating">
-            <input class="form-control" id="floatingInputValue" type="text" name="borrow" onChange={handleChange} value={value}/>
-            <label for="floatingInputValue">Borrow Amount</label>
+            <input class="form-control" id="floatingInputValueBorrow" type="text" name="borrow" onChange={handleChange} value={value}/>
+            <label for="floatingInputValueBorrow">Borrow Amount</label>
         </form>
     );
     //<input type="submit" value="Submit" />

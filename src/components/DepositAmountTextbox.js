@@ -9,8 +9,8 @@ function DepositAmountTextbox({ onChange, value }) {
     
     return (
         <form class="form-floating">
-            <input class="form-control" id="floatingInputValue" type="text" name="deposit" onChange={handleChange} value={value}/>
-            <label for="floatingInputValue">Deposit Amount</label>
+            <input class="form-control" id="floatingInputValueDeposit" type="text" name="deposit" onChange={handleChange} value={value}/>
+            <label for="floatingInputValueDeposit">Deposit Amount</label>
         </form>
     );
     //<input type="submit" value="Submit" />

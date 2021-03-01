@@ -9,10 +9,10 @@ function GraphRadio({onChange, radioSelectedOption}) {
     return (
         <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
             <button type="button" class="btn btn-outline-secondary" disabled>Graph</button>
-            <input type="radio" class="btn-check" name="btnradio" id="btnradio1" value="interest" autocomplete="off" checked={radioSelectedOption === "interest"} onChange={handleChange}/>
+            <input type="radio" class="btn-check" name="btnradio" id="btnradio1" value="interest" autoComplete="off" checked={radioSelectedOption === "interest"} onChange={handleChange}/>
             <label class="btn btn-outline-secondary" for="btnradio1">Interest</label>
 
-            <input type="radio" class="btn-check" name="btnradio" id="btnradio2" value="rate" autocomplete="off" checked={radioSelectedOption === "rate"} onChange={handleChange}/>
+            <input type="radio" class="btn-check" name="btnradio" id="btnradio2" value="rate" autoComplete="off" checked={radioSelectedOption === "rate"} onChange={handleChange}/>
             <label class="btn btn-outline-secondary" for="btnradio2">Rate</label>
 
         </div>

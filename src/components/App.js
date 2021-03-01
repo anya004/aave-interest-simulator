@@ -29,7 +29,7 @@ function App() {
   return (
     <div className="App">
       <Header class="row" />
-      <div class="App-page">
+      <div className="App-page">
         <div class="container-fluid row">
           <div class="col-2">
             <SelectDepositAsset 
@@ -95,7 +95,7 @@ function App() {
           </div>
         </div>
       </div>
-      <Footer class="App-footer"/>
+      <Footer className="App-footer"/>
     </div>
   );
 }

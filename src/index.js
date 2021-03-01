@@ -38,9 +38,8 @@ const client = new ApolloClient({
             // Concatenate the incoming list items with
             // the existing list items.
             merge(existing, incoming, { args }) {
-              console.log("MERGING");
-              console.log("Merging args: ",args);
-              console.log("Incoming length:", incoming.length);
+              // console.log("Merging args: ",args);
+              // console.log("Incoming length:", incoming.length);
               if (!incoming.length)
                 return existing;
               return existing ? [...existing, ...incoming] : incoming;
