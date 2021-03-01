@@ -87,7 +87,7 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
             else
                 return formatGraphData(dataAvg.reserves[0].paramsHistory, deposit);
         },
-        [dataAvg, deposit]
+        [loadingAvg, errorAvg, dataAvg, deposit]
       );
 
     const graphDataVariableBorrow = useMemo(
@@ -97,7 +97,7 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
             else
                 return formatGraphDataVariableBorrowed(dataBor.reserves[0].paramsHistory, borrowAmount);
         },
-        [dataBor, borrowAmount]
+        [loadingBor, errorBor, dataBor, borrowAmount]
       );
 
     if (loadingAvg)
