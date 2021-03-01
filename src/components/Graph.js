@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { gql } from '@apollo/client';
 import { useParamsHistoryData } from '../hooks/useParamsHistoryData';
 import { formatGraphData , formatGraphDataVariableBorrowed} from '../helpers.js';
@@ -80,7 +80,26 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
         daysAgo30
       );
 
-    
+    const graphData = useMemo(
+        () => {
+            if (loadingAvg || errorAvg)
+                return null;
+            else
+                return formatGraphData(dataAvg.reserves[0].paramsHistory, deposit);
+        },
+        [dataAvg, deposit]
+      );
+
+    const graphDataVariableBorrow = useMemo(
+        () => {
+            if (loadingBor || errorBor)
+                return null;
+            else
+                return formatGraphDataVariableBorrowed(dataBor.reserves[0].paramsHistory, borrowAmount);
+        },
+        [dataBor, borrowAmount]
+      );
+
     if (loadingAvg)
         return 'Loading...';
     if (loadingBor)
@@ -90,12 +109,7 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
     if (errorBor)
         return `Error! ${errorBor.message}`;
 
-    //console.log("Rendering with fetchedData.reserves[0].paramsHistory.length", dataAvg.reserves[0].paramsHistory.length, dataAvg.reserves[0].paramsHistory.slice(-1)[0].id);
-
-    // console.log("rendering with data", JSON.parse(JSON.stringify(data)), "dataVB", JSON.parse(JSON.stringify(dataVB)));
-    
-    const graphData = formatGraphData(dataAvg.reserves[0].paramsHistory, deposit);
-    const graphDataVariableBorrow = formatGraphDataVariableBorrowed(dataBor.reserves[0].paramsHistory, borrowAmount);
+    //console.log("Rendering with dataAvg.reserves[0].paramsHistory.length", dataAvg.reserves[0].paramsHistory.length, dataAvg.reserves[0].paramsHistory.slice(-1)[0].id);
 
     //let options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour12: false};
     if (graphType === "interest") {
