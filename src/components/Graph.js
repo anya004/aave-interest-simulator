@@ -152,14 +152,32 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
                         formatter={
                             (value,) => ( 
                                 [
-                                    currencySelectedOption === "native" ? value.toFixed(3).toString().concat(" ", asset):"$".concat(value.toFixed(2).toString()), 
+                                    currencySelectedOption === "native" ? value.toFixed(3).toString():"$".concat(value.toFixed(2).toString()), 
                                 ]
                             )
                         }
                     />
                     <Legend verticalAlign="top" height={36} />
-                    <Line type="monotone" data={graphData} dataKey={currencySelectedOption === "native" ?  "Interest":"InterestUsd"} name="Earned Interest" stackId="1" fill="#B6509E" stroke="#B6509E" />
-                    <Line type="monotone" data={graphDataVariableBorrow} dataKey={currencySelectedOption === "native" ?  "OwedInterest":"OwedInterestUsd"} name="Owed Interest" stackId="1" stroke="#2EBAC6" fill="#2EBAC6" />
+                    <Line 
+                        type="monotone" 
+                        data={graphData} 
+                        dataKey={currencySelectedOption === "native" ?  "Interest":"InterestUsd"}
+                        unit={currencySelectedOption === "native" ?  " ".concat(asset):""}
+                        name="Earned Interest" 
+                        stackId="1" 
+                        fill="#B6509E" 
+                        stroke="#B6509E" 
+                        />
+                    <Line 
+                        type="monotone" 
+                        data={graphDataVariableBorrow} 
+                        dataKey={currencySelectedOption === "native" ?  "OwedInterest":"OwedInterestUsd"} 
+                        unit={currencySelectedOption === "native" ?  " ".concat(borrowAsset):""}
+                        name="Owed Interest" 
+                        stackId="1" 
+                        stroke="#2EBAC6" 
+                        fill="#2EBAC6" 
+                        />
                 </ComposedChart>
             </ResponsiveContainer>
             </>
@@ -193,7 +211,14 @@ const Graph = ({asset, deposit, borrowAsset, borrowAmount, graphType, currencySe
                         labelFormatter={(unixTime) => new Date(unixTime*1000).toLocaleString('en-US')}
                     />
                     <Legend verticalAlign="top" height={36} />
-                    <Line type="monotone" dataKey="DepositRate" name="Deposit Rate" stackId="1" stroke="#B6509E" fill="#2EBAC6" />
+                    <Line 
+                        type="monotone" 
+                        dataKey="DepositRate" 
+                        name="Deposit Rate" 
+                        stackId="1" 
+                        stroke="#B6509E" 
+                        fill="#2EBAC6" 
+                        />
                 </LineChart>
             </ResponsiveContainer>
         );
